@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="衛生福利部臺北醫院腫瘤內科的癌症衛教網站：3D 魔法書館入口、肺癌衛教與治療小冊。">
+<title>星夜癌症衛教書館</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/site.css">
+<style>
+/* 樣式表載入前的最小底色，避免閃白 */
+:root { --night: #0c1130; --paper: #eef1f7; --ink: #1a2042; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #0f1330; --ink: #e9eaf4; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper: #0f1330; --ink: #e9eaf4; color-scheme: dark; }
+body { margin: 0; background: var(--paper); color: var(--ink); }
+</style>
+
+</head>
+<body>
+<div id="lobby">
+  <canvas id="scene" aria-label="3D 魔法書館，書本代表各種癌症"></canvas>
+  <div class="lobby-head">
+    <h1>星夜癌症衛教書館</h1>
+    <p>衛生福利部臺北醫院・腫瘤內科</p>
+  </div>
+  <div id="tip" hidden></div>
+  <div id="toast" hidden></div>
+  <div class="lobby-foot">
+    <div class="hint" id="hint">點一下漂浮的書，翻開你想了解的癌症</div>
+    <button class="btn-list" id="openShelf" type="button">直接選癌別</button>
+  </div>
+  <div id="shelf" hidden>
+    <div class="shelf-in">
+      <div class="shelf-top">
+        <h2>選擇癌別</h2>
+        <button class="btn-ghost" id="closeShelf" type="button">回到書館</button>
+      </div>
+      <label for="q" style="position:absolute;left:-9999px">搜尋癌別</label>
+      <input id="q" type="search" placeholder="輸入癌別，例如：肺、乳、大腸" autocomplete="off">
+      <ul class="books" id="books"></ul>
+    </div>
+  </div>
+  <div id="loading"><div><div class="bk"><i></i><i></i><i></i></div><p>書館開門中</p></div></div>
+</div>
+
+<main id="article" hidden></main>
+
+<!-- 函式庫 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- 資料：癌別清單與文章（新增癌別時在這裡多加一行 articles/xxx.js） -->
+<script charset="utf-8" src="data/site.js"></script>
+<script charset="utf-8" src="data/cancers.js"></script>
+<script charset="utf-8" src="data/treatments.js"></script>
+<script charset="utf-8" src="articles/lung.js"></script>
+<!-- 治療小冊（跨癌別共用） -->
+<script charset="utf-8" src="articles/tx-surgery-lung.js"></script>
+<script charset="utf-8" src="articles/tx-radiation.js"></script>
+<script charset="utf-8" src="articles/tx-chemo.js"></script>
+<script charset="utf-8" src="articles/tx-targeted.js"></script>
+<script charset="utf-8" src="articles/tx-immuno.js"></script>
+<!-- 程式：圖解、互動工具、3D 書館、主程式 -->
+<script charset="utf-8" src="js/figures.js"></script>
+<script charset="utf-8" src="js/widgets.js"></script>
+<script charset="utf-8" src="js/lobby.js"></script>
+<script charset="utf-8" src="js/app.js"></script>
+
+</body>
+</html>
