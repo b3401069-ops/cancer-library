@@ -607,6 +607,17 @@ details.faq[open] .faq-a { animation: swap .35s ease both; }
 @keyframes rv { from { opacity: .15; transform: translateY(26px); } to { opacity: 1; transform: none; } }
 @keyframes ringdraw { from { stroke-dashoffset: 189; } to { stroke-dashoffset: 0; } }
 
+/* 效能：離開畫面的動畫暫停 */
+svg.anim.off, svg.anim.off *, .a-hero.off *, .a-hero.off *::before, .a-hero.off *::after { animation-play-state: paused !important; }
+/* 手機等觸控裝置：拿掉捲動時最耗效能的毛玻璃與捲動淡入 */
+@media (pointer: coarse) {
+  .bar { backdrop-filter: none; background: var(--paper); }
+  .sticky-pick > .pick { backdrop-filter: none; }
+  .fabs button { backdrop-filter: none; background: rgba(12,17,48,.95); }
+  .rv, .quit-line li, .emblem .ring circle { animation: none !important; }
+  .fig, .mech-fig, .stagefig { box-shadow: inset 0 0 0 1px rgba(232,199,127,.35); }
+}
+
 /* =========================================================
    列印版
    ========================================================= */

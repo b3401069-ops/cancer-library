@@ -16,9 +16,17 @@ window.App = (function () {
 
   /* ---------- 動畫：離開畫面就暫停，減少動態時停在完整畫面 ---------- */
   var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
-    es.forEach(function (e) { var s = e.target; if (!s.pauseAnimations) return; if (e.isIntersecting && !reduced) s.unpauseAnimations(); else s.pauseAnimations(); });
+    es.forEach(function (e) {
+      var s = e.target, on = e.isIntersecting && !reduced;
+      // 離開畫面：SVG 內建動畫與 CSS 動畫都暫停，捲動時不浪費效能
+      s.classList.toggle("off", !on);
+      if (s.pauseAnimations) { if (on) s.unpauseAnimations(); else s.pauseAnimations(); }
+    });
   }, { rootMargin: "80px" }) : null;
+  // 手機等觸控裝置：拿掉 SVG 的模糊光暈濾鏡（很耗效能，視覺差異不大）
+  var lowPower = window.matchMedia && matchMedia("(pointer: coarse)").matches;
   function watchAnims() {
+    if (lowPower) articleEl.querySelectorAll("svg.anim [filter]").forEach(function (n) { n.removeAttribute("filter"); });
     articleEl.querySelectorAll("svg.anim").forEach(function (s) {
       if (s.dataset.watched) return; s.dataset.watched = "1";
       if (reduced && s.setCurrentTime) { try { s.setCurrentTime(5.5); s.pauseAnimations(); } catch (e) {} return; }
@@ -143,6 +151,7 @@ window.App = (function () {
     up.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" }); });
     fab.appendChild(up);
     articleEl.append(bar, hero, wrap, fab);
+    if (io) io.observe(hero); // 開場夜空捲出畫面後暫停星星動畫
     requestAnimationFrame(function () { articleEl.style.setProperty("--barh", barH() + "px"); });
     watchAnims(); trackChapters();
   }
