@@ -536,11 +536,14 @@ dl.fx dd { color: var(--muted); font-size: .95em; }
 .tri-call { margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); font-weight: 700; }
 .tri-call a { color: var(--accent); }
 .tri-after { display: block; margin-top: 4px; color: var(--red); }
-.lobby-logo { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 12px 6px 8px; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
-.lobby-logo img { height: 34px; width: auto; display: block; }
-.lobby-logo span { color: #23305c; font-size: 14px; font-weight: 700; letter-spacing: .06em; border-left: 1px solid #c9cfe6; padding-left: 10px; }
+.lobby-logo { display: inline-flex; align-items: center; gap: 12px; margin-top: 10px; opacity: .88; }
+.lobby-logo img { height: 30px; width: auto; display: block; filter: drop-shadow(0 0 10px rgba(12,17,48,.6)); }
+.lobby-logo span { color: var(--mist); font-size: 14px; letter-spacing: .1em; border-left: 1px solid rgba(201,205,234,.4); padding-left: 12px; }
 .site-foot { margin-top: 36px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; padding: 14px; background: #fff; border-radius: 14px; border: 1px solid var(--line); }
 .site-foot img { height: 44px; width: auto; }
+.site-foot .logo-dark { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .site-foot { background: transparent; } :root:not([data-theme="light"]) .site-foot .logo-color { display: none; } :root:not([data-theme="light"]) .site-foot .logo-dark { display: block; } :root:not([data-theme="light"]) .site-foot span { color: var(--mist); } }
+:root[data-theme="dark"] .site-foot { background: transparent; } :root[data-theme="dark"] .site-foot .logo-color { display: none; } :root[data-theme="dark"] .site-foot .logo-dark { display: block; } :root[data-theme="dark"] .site-foot span { color: var(--mist); }
 .site-foot span { color: #23305c; font-weight: 700; font-size: 15px; }
 /* 浮動按鈕 */
 .fabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
