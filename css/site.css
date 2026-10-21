@@ -517,10 +517,24 @@ dl.fx dd { color: var(--muted); font-size: .95em; }
 .rs-head small { display: block; font-size: 12px; color: var(--muted); }
 .rs-head b { font-family: var(--f-display); font-size: 1.3em; }
 .resource p { margin: 10px 0 6px; }
-.rs-list { margin: 0; padding-left: 1.2em; columns: 2; column-gap: 24px; font-size: .92em; }
-.rs-list li { break-inside: avoid; margin-bottom: 4px; }
-.rs-list li::marker { color: var(--good); }
-.rs-contact { font-size: .86em; color: var(--muted); }
+.rs-slogan { display: block; font-size: .8em; color: var(--good); letter-spacing: .08em; }
+.rs-svc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.rs-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; line-height: 1.5; }
+.rs-card b { font-size: .95em; }
+.rs-card span { font-size: .84em; color: var(--muted); }
+.rs-contact { display: grid; gap: 8px; margin-top: 4px; }
+.rs-c { display: grid; grid-template-columns: 7.5em auto 1fr; gap: 4px 10px; align-items: center; }
+.rs-l { font-size: .82em; font-weight: 700; color: var(--good); }
+.rs-tel, .rs-line { font-weight: 700; font-size: 1.05em; color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; }
+.rs-line { color: #06a24b; }
+.rs-ext { font-size: .85em; color: var(--muted); }
+.rs-place { font-size: .95em; }
+.rs-map-btn { justify-self: start; font-size: 13px; padding: 5px 12px; }
+.rs-map { margin-top: 10px; animation: swap .35s ease both; }
+.rs-map .fig svg { max-width: 460px; }
+.rs-route { font-size: .9em; margin: 8px 0 0; }
+.tri-call { margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); font-weight: 700; }
+.tri-call a { color: var(--accent); }
 /* 浮動按鈕 */
 .fabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .fabs button { pointer-events: auto; border: 1px solid rgba(232,199,127,.6); background: rgba(12,17,48,.88); color: var(--star); backdrop-filter: blur(8px); box-shadow: 0 8px 22px rgba(12,17,48,.35); }
@@ -649,7 +663,8 @@ body.printview .panel { break-inside: avoid; }
   .split-pick .panel > .mini-fig { grid-row: auto; }
   .cb-row { grid-template-columns: 1fr; }
   .cb-tag { justify-self: start; }
-  .rs-list { columns: 1; }
+  .rs-svc { grid-template-columns: 1fr; }
+  .rs-c { grid-template-columns: 1fr; gap: 2px; }
   .mech-pick .pick { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .vid { grid-template-columns: 1fr; }
   .breath { grid-template-columns: 1fr; }

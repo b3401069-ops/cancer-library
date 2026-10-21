@@ -209,10 +209,19 @@ window.Widgets = (function () {
   W.resource = function (b) {
     var S = (window.SITE && window.SITE.resource) || null; if (!S) return el("div");
     var w = el("aside", "resource");
-    w.innerHTML = '<div class="rs-head"><span class="rs-ico" aria-hidden="true">' + F.icon("heart", 26) + "</span><div><small>" + window.SITE.hospital + "</small><b>" + S.name + "</b></div></div>" +
+    w.innerHTML = '<div class="rs-head"><span class="rs-ico" aria-hidden="true">' + F.icon("heart", 26) + "</span><div><small>" + window.SITE.hospital + "</small><b>" + S.name + "</b>" +
+      (S.slogan ? '<span class="rs-slogan">' + S.slogan + "</span>" : "") + "</div></div>" +
       "<p>" + (b.text || S.intro) + "</p>" +
-      '<ul class="rs-list">' + S.services.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
-      '<p class="rs-contact">' + S.contact + "</p>";
+      '<div class="rs-svc">' + S.services.map(function (x) { return '<div class="rs-card"><b>' + x.t + "</b><span>" + x.d + "</span></div>"; }).join("") + "</div>" +
+      '<div class="rs-contact">' +
+      '<div class="rs-c"><span class="rs-l">個管聯絡電話</span><a class="rs-tel" href="tel:' + S.tel + '">' + S.phone + '</a><span class="rs-ext">分機 ' + S.ext.join("、") + "</span></div>" +
+      '<div class="rs-c"><span class="rs-l">LINE 官方帳號</span><a class="rs-line" href="' + S.lineUrl + '" target="_blank" rel="noopener">' + S.line + ' ↗</a><span class="rs-ext">加入好友，隨時詢問</span></div>' +
+      '<div class="rs-c"><span class="rs-l">地點</span><b class="rs-place">' + S.place + '</b><button type="button" class="btn-s rs-map-btn" aria-expanded="false">怎麼走？</button></div>' +
+      (S.hours ? '<div class="rs-c"><span class="rs-l">服務時間</span><b>' + S.hours + "</b></div>" : "") +
+      "</div>" +
+      '<div class="rs-map" hidden><div class="fig">' + F.resourceMap() + '</div><p class="rs-route">' + S.route + "</p></div>";
+    var btn = w.querySelector(".rs-map-btn"), map = w.querySelector(".rs-map");
+    btn.addEventListener("click", function () { map.hidden = !map.hidden; btn.setAttribute("aria-expanded", map.hidden ? "false" : "true"); btn.textContent = map.hidden ? "怎麼走？" : "收起地圖"; });
     return w;
   };
 
@@ -386,7 +395,9 @@ window.Widgets = (function () {
   /* ---------- 紅黃綠燈 ---------- */
   W.triage = function (b, pm) {
     var levels = [["red", b.red], ["yellow", b.yellow], ["green", b.green]];
-    var r = function (lv) { return '<div class="tri-' + lv[0] + '"><h4>' + lv[1].t + '</h4><ul>' + lv[1].items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul></div>"; };
+    var S = window.SITE && window.SITE.resource;
+    var call = S ? '<p class="tri-call">個管聯絡電話：<a href="tel:' + S.tel + '">' + S.phone + "</a> 分機 " + S.ext.join("、") + "</p>" : "";
+    var r = function (lv) { return '<div class="tri-' + lv[0] + '"><h4>' + lv[1].t + '</h4><ul>' + lv[1].items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" + (lv[0] === "yellow" ? call : "") + "</div>"; };
     if (pm) return staticList(levels, r);
     var w = el("div", "triage");
     var p = picker(levels, "症狀分級", r, {

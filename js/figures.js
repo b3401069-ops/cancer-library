@@ -665,6 +665,32 @@ window.Figures = (function () {
       organs + spots, "body-fig");
   }
 
+  /* ---------- 癌症資源中心路線圖（依本院單張重畫） ---------- */
+  function resourceMap() {
+    return svg("0 0 400 300", "路線圖：從本院復健科側門出去，沿著停車場走到放射治療中心大門，癌症資源中心就在裡面",
+      txt(60, 22, "民樂街", { fill: "#d9dcf5", size: 13, weight: 700 }) + txt(200, 292, "思源路", { fill: "#d9dcf5", size: 13, weight: 700 }) +
+      txt(20, 136, "長", { fill: "#d9dcf5", size: 13, weight: 700 }) + txt(20, 154, "青", { fill: "#d9dcf5", size: 13, weight: 700 }) + txt(20, 172, "街", { fill: "#d9dcf5", size: 13, weight: 700 }) +
+      // 本院大樓
+      '<path d="M40 50 H130 V128 H178 V230 H130 V270 H40 Z" fill="#f2b896" opacity=".9"/>' +
+      txt(86, 170, "臺北醫院", { fill: "#3b2f2f", size: 14, weight: 700 }) + txt(86, 188, "（本院）", { fill: "#5a4a40", size: 11 }) +
+      '<rect x="66" y="266" width="40" height="6" fill="#3b2f2f"/>' + txt(86, 262, "本院大門", { fill: "#5a4a40", size: 10.5 }) +
+      '<rect x="36" y="70" width="6" height="22" fill="#3b2f2f"/>' + txt(52, 84, "急診", { fill: "#5a4a40", size: 10.5, anchor: "start" }) +
+      txt(154, 146, "復健科", { fill: "#3b2f2f", size: 12, weight: 700 }) +
+      '<rect x="176" y="168" width="6" height="30" fill="#e2604e"/>' + txt(170, 214, "側門", { fill: "#b8475e", size: 12, weight: 700, anchor: "end" }) +
+      // 停車場
+      '<rect x="262" y="140" width="56" height="130" rx="8" fill="#2f9a5a"/>' + txt(290, 210, "停車場", { fill: "#fff", size: 13, weight: 700 }) +
+      // 放射治療中心（癌症資源中心）
+      '<rect x="200" y="36" width="180" height="78" rx="12" fill="#fde7c8" stroke="#e8c77f" stroke-width="2"/>' +
+      txt(290, 64, "癌症資源中心", { fill: "#3b2f2f", size: 16, weight: 700 }) + txt(290, 84, "放射治療中心", { fill: "#5a4a40", size: 12 }) +
+      '<rect x="268" y="110" width="44" height="6" fill="#3b2f2f"/>' + txt(290, 104, "大門", { fill: "#b8475e", size: 11, weight: 700 }) +
+      '<circle cx="214" cy="48" r="9" fill="#e2604e"/><circle cx="214" cy="48" r="3.5" fill="#fff"/>' +
+      // 路線
+      '<path d="M182 184 H 236 Q 248 184 248 172 V 124" fill="none" stroke="#f0cf86" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 9">' +
+      '<animate attributeName="stroke-dashoffset" values="22;0" dur="1s" repeatCount="indefinite"/></path>' +
+      '<path d="M240 130 L248 118 L256 130" fill="none" stroke="#f0cf86" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle r="6" fill="#fff8e6" stroke="#e8c77f" stroke-width="2"><animateMotion dur="4s" repeatCount="indefinite" path="M182 184 H 236 Q 248 184 248 172 V 124"/></circle>', "map-fig");
+  }
+
   /* ---------- 放射治療技術比較 ----------
      橫切面：身體、腫瘤、脊髓與心臟（需要保護的器官），四種技術的射線與劑量分布。 */
   function rtTech(kind) {
@@ -766,5 +792,5 @@ window.Figures = (function () {
     return '<svg class="ico" viewBox="0 0 24 24" width="' + (size || 24) + '" height="' + (size || 24) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[name] || I.book) + "</svg>";
   }
 
-  return { breathe: breathe, cells: cells, genes: genes, plate: plate, stagemap: stagemap, pursed: pursed, body: bodyMap, resection: resection, approach: approach, rtTech: rtTech, mech: MECH, icon: icon };
+  return { breathe: breathe, cells: cells, genes: genes, plate: plate, stagemap: stagemap, pursed: pursed, body: bodyMap, resourceMap: resourceMap, resection: resection, approach: approach, rtTech: rtTech, mech: MECH, icon: icon };
 })();
