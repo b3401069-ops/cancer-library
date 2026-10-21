@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 草稿期間不讓搜尋引擎收錄；正式上線時刪除這一行 -->
+<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="衛生福利部臺北醫院腫瘤內科的癌症衛教網站：3D 魔法書館入口、肺癌衛教與治療小冊。">
 <title>星夜癌症衛教書館</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -24,7 +26,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); }
   <canvas id="scene" aria-label="3D 魔法書館，書本代表各種癌症"></canvas>
   <div class="lobby-head">
     <h1>星夜癌症衛教書館</h1>
-    <p>衛生福利部臺北醫院・腫瘤內科</p>
+    <div class="lobby-logo"><img src="img/logo.png" alt="衛生福利部臺北醫院" width="143" height="34"><span>腫瘤內科</span></div>
   </div>
   <div id="tip" hidden></div>
   <div id="toast" hidden></div>

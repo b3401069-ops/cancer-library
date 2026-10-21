@@ -121,7 +121,7 @@ window.App = (function () {
 
     var wrap = el("div", "wrap");
     wrap.appendChild(el("div", "printnote", "這是列印版面：動畫與互動已展開成文字。請用瀏覽器選單的「列印」印出，或請門診人員協助列印。"));
-    var meta = el("p", "meta", "最後更新：" + art.updated + "　審核：" + art.reviewer + "　共 " + art.sections.length + " 章");
+    var meta = el("p", "meta", "最後更新：" + art.updated + "　審核醫師：" + art.reviewer + "　共 " + art.sections.length + " 章");
     wrap.appendChild(meta);
     art.sections.forEach(function (s, i) {
       var sec = el("section", "sec"); sec.id = "s-" + s.id;
@@ -139,6 +139,7 @@ window.App = (function () {
     var endBtn = el("button", from ? "btn-s" : "btn-p", "回到書館"); endBtn.type = "button"; endBtn.addEventListener("click", function () { location.hash = ""; });
     end.appendChild(endBtn);
     wrap.appendChild(end);
+    wrap.appendChild(el("div", "site-foot", '<img src="img/logo.png" alt="衛生福利部臺北醫院" width="220" height="52"><span>腫瘤內科・癌症資源中心</span>'));
     wrap.appendChild(el("p", "disc", "本網站內容僅供衛教參考，不能取代醫師的診斷與治療建議。每位病人的情況不同，實際治療請與您的主治醫師討論。"));
     // 浮動按鈕：小冊左下角「回到原本那一篇」；右下角「回到頂端」
     var fab = el("div", "fabs");

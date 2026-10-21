@@ -4,9 +4,9 @@ window.ARTICLES["tx-surgery-lung"] = {
   kind: "booklet",
   title: "肺部手術",
   subtitle: "術前準備、住院過程與回家照顧",
-  status: "草稿・待醫師審核",
+  status: "草稿・審核中",
   updated: "2026-10-19",
-  reviewer: "待審核",
+  reviewer: "陳建銘醫師",
   lead: "手術是早期肺癌最主要的根治方式。現在多數肺癌手術用胸腔鏡完成，傷口小、恢復快。術前把身體準備好、術後積極做呼吸運動和下床活動，是順利恢復最重要的兩件事。",
   facts: [
     { n: "3–7 天", t: "胸腔鏡手術常見的住院天數" },

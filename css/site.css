@@ -535,6 +535,13 @@ dl.fx dd { color: var(--muted); font-size: .95em; }
 .rs-route { font-size: .9em; margin: 8px 0 0; }
 .tri-call { margin: 10px 0 0; padding-top: 8px; border-top: 1px dashed var(--line); font-weight: 700; }
 .tri-call a { color: var(--accent); }
+.tri-after { display: block; margin-top: 4px; color: var(--red); }
+.lobby-logo { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 12px 6px 8px; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+.lobby-logo img { height: 34px; width: auto; display: block; }
+.lobby-logo span { color: #23305c; font-size: 14px; font-weight: 700; letter-spacing: .06em; border-left: 1px solid #c9cfe6; padding-left: 10px; }
+.site-foot { margin-top: 36px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; padding: 14px; background: #fff; border-radius: 14px; border: 1px solid var(--line); }
+.site-foot img { height: 44px; width: auto; }
+.site-foot span { color: #23305c; font-weight: 700; font-size: 15px; }
 /* 浮動按鈕 */
 .fabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .fabs button { pointer-events: auto; border: 1px solid rgba(232,199,127,.6); background: rgba(12,17,48,.88); color: var(--star); backdrop-filter: blur(8px); box-shadow: 0 8px 22px rgba(12,17,48,.35); }

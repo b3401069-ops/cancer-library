@@ -47,6 +47,9 @@
 - 原始檔在 GitHub 專案 b3401069-ops/cancer-library 的 main 分支；推送後約 1–2 分鐘網站自動更新，網址與 QR code 不變。
 - index.html 在 GitHub 版需要完整的 `<!doctype html>`、`<head>`、`<body>` 外框（claude.ai 預覽版由平台自動加上）。
 - claude.ai 上的預覽版只給自己看；要給別人看一律用 GitHub 網址。
+- 草稿期間 index.html 有 `<meta name="robots" content="noindex, nofollow">`，搜尋引擎不會收錄；正式上線時刪除。
+- GitHub 專案是公開的：程式碼與內容任何人都看得到，不可放入任何病人資料。
+- img/logo.png 為院徽，院方同意使用（2026-10-21）。
 
 ## 平台限制
 - 發佈的網頁不能嵌入 YouTube 播放器，影片以連結卡片呈現，點擊後在 YouTube 開啟。

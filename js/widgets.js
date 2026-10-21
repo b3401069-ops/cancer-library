@@ -217,7 +217,7 @@ window.Widgets = (function () {
       '<div class="rs-c"><span class="rs-l">個管聯絡電話</span><a class="rs-tel" href="tel:' + S.tel + '">' + S.phone + '</a><span class="rs-ext">分機 ' + S.ext.join("、") + "</span></div>" +
       '<div class="rs-c"><span class="rs-l">LINE 官方帳號</span><a class="rs-line" href="' + S.lineUrl + '" target="_blank" rel="noopener">' + S.line + ' ↗</a><span class="rs-ext">加入好友，隨時詢問</span></div>' +
       '<div class="rs-c"><span class="rs-l">地點</span><b class="rs-place">' + S.place + '</b><button type="button" class="btn-s rs-map-btn" aria-expanded="false">怎麼走？</button></div>' +
-      (S.hours ? '<div class="rs-c"><span class="rs-l">服務時間</span><b>' + S.hours + "</b></div>" : "") +
+      (S.hours ? '<div class="rs-c"><span class="rs-l">服務時間</span><b>' + S.hours + "</b>" + (S.afterHours ? '<span class="rs-ext">' + S.afterHours + "</span>" : "") + "</div>" : "") +
       "</div>" +
       '<div class="rs-map" hidden><div class="fig">' + F.resourceMap() + '</div><p class="rs-route">' + S.route + "</p></div>";
     var btn = w.querySelector(".rs-map-btn"), map = w.querySelector(".rs-map");
@@ -396,7 +396,7 @@ window.Widgets = (function () {
   W.triage = function (b, pm) {
     var levels = [["red", b.red], ["yellow", b.yellow], ["green", b.green]];
     var S = window.SITE && window.SITE.resource;
-    var call = S ? '<p class="tri-call">個管聯絡電話：<a href="tel:' + S.tel + '">' + S.phone + "</a> 分機 " + S.ext.join("、") + "</p>" : "";
+    var call = S ? '<p class="tri-call">個管聯絡電話：<a href="tel:' + S.tel + '">' + S.phone + "</a> 分機 " + S.ext.join("、") + (S.hours ? "（" + S.hours + "）" : "") + (S.afterHours ? '<span class="tri-after">' + S.afterHours + "</span>" : "") + "</p>" : "";
     var r = function (lv) { return '<div class="tri-' + lv[0] + '"><h4>' + lv[1].t + '</h4><ul>' + lv[1].items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" + (lv[0] === "yellow" ? call : "") + "</div>"; };
     if (pm) return staticList(levels, r);
     var w = el("div", "triage");

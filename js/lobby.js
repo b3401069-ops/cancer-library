@@ -201,10 +201,10 @@ window.Lobby = (function () {
       var cols = 2, rowsN = Math.ceil(n / cols);
       books.forEach(function (b, i) {
         var c = i % cols, r = Math.floor(i / cols);
-        b.position.set((c - (cols - 1) / 2) * 1.9, (rowsN - 1) / 2 * 2.45 - r * 2.45 + .35, 0);
+        b.position.set((c - (cols - 1) / 2) * 1.9, (rowsN - 1) / 2 * 2.3 - r * 2.3 + 1.1, 0); // 整組往上，最下排不會沉進地板
         b.rotation.y = (c ? -1 : 1) * .12; b.userData.baseY = b.position.y; b.scale.setScalar(.95);
       });
-      camera.fov = 52; camBase.set(0, .3, 11.2 + (rowsN - 3) * 2.4); lookAt.set(0, .25, 0);
+      camera.fov = 52; camBase.set(0, .3, 11.2 + (rowsN - 3) * 2.4 + Math.max(0, .62 - aspect) * 14); lookAt.set(0, .6, 0); camBase.y = 1.1; // 手機直式：越窄越拉遠，書架置中，避開上方標題與底部按鈕
     } else {
       var R = 6.2, span = Math.min(1.25, .2 * n);
       books.forEach(function (b, i) {

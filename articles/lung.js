@@ -5,9 +5,9 @@ window.ARTICLES = window.ARTICLES || {};
 window.ARTICLES.lung = {
   title: "肺癌",
   subtitle: "給病人與家屬的白話說明",
-  status: "草稿・待醫師審核",
+  status: "草稿・審核中",
   updated: "2026-10-19",
-  reviewer: "待審核",
+  reviewer: "陳建銘醫師",
   lead: "聽到「肺癌」兩個字，很多人第一個反應是害怕。其實肺癌的檢查與治療這十年進步非常多，早期發現可以治癒，晚期也有許多病人能長期控制病情、維持正常生活。這本書會一步一步帶你認識肺癌。",
   facts: [
     { n: "22 年", t: "肺癌連續居台灣癌症死因第一位（2025 年統計）" },

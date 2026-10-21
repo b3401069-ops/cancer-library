@@ -18,6 +18,7 @@ window.SITE = {
     lineUrl: "https://line.me/R/ti/p/%40850bphnc",
     place: "放射治療中心大樓內",
     route: "從本院復健科側門出去，沿著醫院停車場旁往前走，就會看到放射治療中心大門。",
-    hours: ""   // 服務時間待補
+    hours: "早上 8 點到下午 5 點",
+    afterHours: "下班時間請直接到本院急診"
   }
 };
