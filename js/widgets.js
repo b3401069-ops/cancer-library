@@ -49,9 +49,12 @@ window.Widgets = (function () {
 
   /* ---------- 影片連結卡 ---------- */
   W.setVideos = function (list) { VIDS = {}; (list || []).forEach(function (v) { VIDS[v.n] = v; }); };
-  function vcards(eps, pm) {
-    return '<div class="vgrid">' + eps.filter(function (n) { return VIDS[n]; }).map(function (n) {
-      var v = VIDS[n], url = "https://www.youtube.com/watch?v=" + v.id;
+  // src：其他癌別的影片（治療小冊依讀者從哪一篇點進來，列出那一癌別的影片）
+  function vmap(id) { var a = (window.ARTICLES || {})[id], m = {}; ((a && a.videos) || []).forEach(function (v) { m[v.n] = v; }); return m; }
+  function vcards(eps, pm, src) {
+    var V = src || VIDS;
+    return '<div class="vgrid">' + eps.filter(function (n) { return V[n]; }).map(function (n) {
+      var v = V[n], url = "https://www.youtube.com/watch?v=" + v.id;
       return '<a class="vcard" href="' + url + '" target="_blank" rel="noopener"><span class="vc-art" aria-hidden="true"><i></i><b>' + n + '</b></span>' +
         '<span class="vc-txt"><small>第 ' + n + ' 集</small><span class="vc-t">' + v.t + "</span>" +
         (pm ? '<span class="vc-u">youtu.be/' + v.id + "</span>" : '<span class="vc-go">在 YouTube 觀看 ↗</span>') + "</span></a>";
@@ -99,12 +102,15 @@ window.Widgets = (function () {
     var d = ""; for (var i = 0; i < of; i++) d += '<i class="' + (i < n ? "on" : "") + '"></i>';
     return '<div class="meter"><span>' + label + '</span><span class="m-dots" aria-label="' + n + " / " + of + '">' + d + "</span></div>";
   }
+  // 圖解選單：fig 指定圖解（預設肺部切除範圍）；keep 顯示保留功能的刻度；dl 為額外的說明欄位 [[標題, 內容], ...]
   W.resections = function (b, pm) {
+    var fig = F[b.fig || "resection"];
     var r = function (x) {
-      return (pm ? "" : '<div class="fig mini-fig">' + F.resection(x.k) + "</div>") +
-        "<h4>" + x.t + "</h4><p>" + x.d + "</p>" + meter(x.keep, 4, "保留的肺功能") + '<dl><dt>適合情況</dt><dd>' + x.fit + "</dd></dl>";
+      return (pm ? "" : '<div class="fig mini-fig">' + fig(x.k) + "</div>") +
+        "<h4>" + x.t + "</h4><p>" + x.d + "</p>" + (x.keep != null ? meter(x.keep, 4, b.meter || "保留的肺功能") : "") +
+        "<dl>" + (x.fit ? "<dt>適合情況</dt><dd>" + x.fit + "</dd>" : "") + (x.dl || []).map(function (d) { return "<dt>" + d[0] + "</dt><dd>" + d[1] + "</dd>"; }).join("") + "</dl>";
     };
-    return pm ? staticList(b.items, r) : picker(b.items, "選擇切除範圍", r, { cls: "split-pick", footNav: true, onSelect: function () { if (window.App) window.App.watchAnims(); } });
+    return pm ? staticList(b.items, r) : picker(b.items, b.label || "選擇切除範圍", r, { cls: "split-pick", footNav: true, onSelect: function () { if (window.App) window.App.watchAnims(); } });
   };
   W.approaches = function (b, pm) {
     var r = function (x) {
@@ -198,7 +204,7 @@ window.Widgets = (function () {
       bar.style.width = "100%"; n.textContent = "完成";
       var all = score === b.items.length;
       body.innerHTML = '<div class="qz-done"><div class="qz-score"><b>' + score + "</b>/" + b.items.length + "</div><p>" +
-        (all ? "全部答對，你已經很了解肺癌了！" : "答錯的地方，可以回到前面的章節再看看，或在看診時問問醫療團隊。") + "</p></div>";
+        (all ? "全部答對，你已經很了解" + (b.topic || "這個主題") + "了！" : "答錯的地方，可以回到前面的章節再看看，或在看診時問問醫療團隊。") + "</p></div>";
       var again = el("button", "btn-s", "再做一次"); again.type = "button"; again.addEventListener("click", function () { i = 0; score = 0; show(); });
       body.querySelector(".qz-done").appendChild(again);
     }
@@ -227,8 +233,8 @@ window.Widgets = (function () {
 
   W.videos = function (b, pm) {
     var w = el("div", "videos");
-    if (b.groups) b.groups.forEach(function (g) { w.insertAdjacentHTML("beforeend", '<h4 class="vg-h">' + g.t + "</h4>" + vcards(g.eps, pm)); });
-    else w.innerHTML = (b.title ? '<h4 class="vg-h">' + b.title + "</h4>" : "") + vcards(b.eps, pm);
+    if (b.groups) b.groups.forEach(function (g) { w.insertAdjacentHTML("beforeend", '<h4 class="vg-h">' + g.t + "</h4>" + vcards(g.eps, pm, b.from ? vmap(b.from) : null)); });
+    else w.innerHTML = (b.title ? '<h4 class="vg-h">' + b.title + "</h4>" : "") + vcards(b.eps, pm, b.from ? vmap(b.from) : null);
     return w;
   };
 
@@ -247,6 +253,7 @@ window.Widgets = (function () {
   /* ---------- 篩檢資格計算 ---------- */
   W.screening = function (b, pm) {
     if (pm) return el("div");
+    if (b.kind === "crc") return crcScreen();
     var w = el("form", "tool screen-tool"); w.setAttribute("aria-label", "肺癌篩檢資格檢查");
     w.innerHTML =
       '<div class="row"><span class="lbl">性別</span><div class="seg2" role="radiogroup" aria-label="性別">' +
@@ -300,6 +307,33 @@ window.Widgets = (function () {
     calc(); return w;
   };
 
+  /* ---------- 大腸癌篩檢資格（糞便潛血檢查） ---------- */
+  function crcScreen() {
+    var w = el("form", "tool screen-tool"); w.setAttribute("aria-label", "大腸癌篩檢資格檢查");
+    w.innerHTML =
+      '<div class="row"><label class="lbl" for="cr-age">年齡</label><div class="num"><button type="button" data-d="-1" data-t="cr-age" aria-label="年齡減一">−</button><input id="cr-age" type="number" inputmode="numeric" min="18" max="100" value="50"><button type="button" data-d="1" data-t="cr-age" aria-label="年齡加一">＋</button><span>歲</span></div></div>' +
+      '<div class="row"><span class="lbl">家族史</span><label class="tg"><input type="checkbox" id="cr-fam"><span>父母、子女或兄弟姊妹曾得大腸直腸癌</span></label></div>' +
+      '<div class="row"><span class="lbl">症狀</span><label class="tg"><input type="checkbox" id="cr-sym"><span>最近有血便、排便習慣改變、糞便變細或不明原因貧血</span></label></div>' +
+      '<div class="result" aria-live="polite"></div>';
+    var res = w.querySelector(".result");
+    function calc() {
+      var age = parseFloat(w.querySelector("#cr-age").value) || 0, fam = w.querySelector("#cr-fam").checked, sym = w.querySelector("#cr-sym").checked;
+      var ok = (age >= 45 && age <= 74) || (fam && age >= 40 && age <= 44), html;
+      if (ok) html = '<div class="res-ico">✓</div><div><b>你符合公費大腸癌篩檢資格</b><span>' + (age < 45 ? "有大腸直腸癌家族史，40–44 歲也可以篩檢。" : "45–74 歲民眾可以篩檢。") + "每 2 年一次免費糞便潛血檢查，可以在健保特約的醫院、診所或衛生所領取採便管。</span></div>";
+      else html = '<div class="res-ico">i</div><div><b>目前不在公費篩檢的年齡範圍</b><span>' + (age > 74 ? "75 歲以上是否需要檢查，請和醫師討論。" : age >= 40 ? "40–44 歲需要有大腸直腸癌家族史才符合。" : "公費篩檢從 45 歲開始（有家族史從 40 歲）。") + (fam ? "有家族史的人，可以和醫師討論是否直接安排大腸鏡。" : "") + "</span></div>";
+      if (sym) html += '<div class="py"><b>有症狀不用等篩檢</b>：請直接看腸胃科或大腸直腸外科，由醫師安排檢查。</div>';
+      res.className = "result " + (ok ? "yes" : "no"); res.innerHTML = html;
+    }
+    w.addEventListener("input", calc); w.addEventListener("change", calc);
+    w.addEventListener("submit", function (e) { e.preventDefault(); });
+    w.addEventListener("click", function (e) {
+      var t = e.target.closest("button[data-d]"); if (!t) return;
+      var inp = w.querySelector("#" + t.dataset.t), n = (parseFloat(inp.value) || 0) + parseFloat(t.dataset.d);
+      inp.value = Math.max(+inp.min, Math.min(+inp.max, n)); calc();
+    });
+    calc(); return w;
+  }
+
   /* ---------- 檢查旅程 ---------- */
   W.journey = function (b, pm) {
     var r = function (s, i) {
@@ -307,7 +341,7 @@ window.Widgets = (function () {
         '</p><dl><dt>會有什麼感覺</dt><dd>' + s.feel + "</dd><dt>需要準備什麼</dt><dd>" + s.prep + "</dd></dl>";
     };
     if (pm) return staticList(b.items, r);
-    var w = el("div", "journey");
+    var w = el("div", "journey"); w.style.setProperty("--n", b.items.length);
     var track = el("div", "j-track"); track.setAttribute("aria-hidden", "true");
     track.innerHTML = '<div class="j-line"><i></i></div>';
     var p = picker(b.items, "檢查站", r, {
@@ -335,7 +369,7 @@ window.Widgets = (function () {
     var r = function (s) { return "<h4>" + s.t + "</h4><p>" + s.d + '</p><div class="tx"><b>常見治療方向：</b>' + s.tx + "</div>"; };
     if (pm) return staticList(b.items, r);
     var w = el("div", "stagewrap");
-    var fig = el("div", "stagefig"); fig.innerHTML = F.stagemap();
+    var fig = el("div", "stagefig"); fig.innerHTML = (F[b.fig] || F.stagemap)();
     var svg = fig.querySelector("svg");
     var p = picker(b.items, "選擇期別", r, {
       cls: "stage-pick",
@@ -359,7 +393,8 @@ window.Widgets = (function () {
   W.mechanisms = function (b, pm) {
     var r = function (m) {
       var d = el("div", "mech");
-      var fig = el("div", "mech-fig"); if (!pm) fig.innerHTML = F.mech[m.id] ? F.mech[m.id]() : "";
+      // m.fig 可指定其他圖解（例如大腸手術用 colonSeg），m.arg 為傳入參數
+      var fig = el("div", "mech-fig"); if (!pm) fig.innerHTML = m.fig && F[m.fig] ? F[m.fig](m.arg) : F.mech[m.id] ? F.mech[m.id]() : "";
       var t = el("div", "mech-txt",
         "<h4>" + m.t + '<small>' + m.short + "</small></h4>" +
         '<dl><dt>怎麼作用</dt><dd>' + m.how + "</dd><dt>怎麼進行</dt><dd>" + m.when + "</dd><dt>常見副作用</dt><dd>" + m.se + '</dd><dt>小提醒</dt><dd>' + m.tip + "</dd></dl>" + (m.book && !pm ? bookLink(m.book) : "") + vrelated(m.eps, pm));

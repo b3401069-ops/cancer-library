@@ -47,7 +47,16 @@ window.ARTICLES["tx-targeted"] = {
           "<b>次世代定序（NGS）</b>：一次檢測幾十到幾百個基因，找出所有可能的目標。"
         ]},
         { type: "callout", level: "info", title: "報告要等多久？", text: "依檢測項目不同，約一到三週。這段等待是為了選到最適合的藥物，有些情況醫師會先開始其他治療，等報告出來再調整。" },
-        { type: "videos", title: "肺癌病人的檢測影片", eps: ["04"] }
+        { type: "videos", only: "lung", title: "肺癌病人的檢測影片", eps: ["04"] },
+        { type: "h3", only: "colorectal", text: "大腸直腸癌：為什麼要先驗 RAS？" },
+        { type: "figure", only: "colorectal", id: "egfrRas", caption: "抗 EGFR 藥物擋住癌細胞表面的生長開關；但 RAS 突變時，訊號從下游一直傳，這類藥就沒有效。" },
+        { type: "list", only: "colorectal", items: [
+          "<b>RAS（KRAS、NRAS）</b>：沒有突變才適合抗 EGFR 藥物；約一半的大腸癌有 RAS 突變。",
+          "<b>BRAF V600E</b>：有這個突變時，可以考慮 BRAF 雙標靶合併治療。",
+          "<b>MMR／MSI</b>：MSI-H／dMMR 的腫瘤適合免疫治療。",
+          "<b>腫瘤位置</b>：左側大腸（降結腸、乙狀結腸、直腸）的腫瘤，抗 EGFR 藥物的效果通常比右側好，醫師也會一併考慮。"
+        ]},
+        { type: "videos", only: "colorectal", from: "colorectal", title: "大腸直腸癌病人的檢測影片", eps: ["10"] }
       ]
     },
     {
@@ -75,7 +84,8 @@ window.ARTICLES["tx-targeted"] = {
           "只有少數地方變大時，可以用放射治療或局部治療處理，繼續原本的藥物。",
           "評估是否有合適的臨床試驗。"
         ]},
-        { type: "videos", title: "肺癌病人的標靶治療影片", eps: ["08", "11"] }
+        { type: "videos", only: "lung", title: "肺癌病人的標靶治療影片", eps: ["08", "11"] },
+        { type: "videos", only: "colorectal", from: "colorectal", title: "大腸直腸癌病人的藥物治療影片", eps: ["09", "11"] }
       ]
     },
     {
@@ -120,6 +130,13 @@ window.ARTICLES["tx-targeted"] = {
           "<b>定期評估</b>：使用期間需要定期提出療效評估，病情惡化時會停止給付。",
           "<b>不符合條件時</b>：可以選擇自費，或詢問藥廠的病人支持方案、臨床試驗。"
         ]},
+        { type: "h3", only: "colorectal", text: "大腸直腸癌的標靶藥物給付" },
+        { type: "list", only: "colorectal", items: [
+          "<b>抗 EGFR 藥物</b>：轉移性大腸直腸癌、RAS 沒有突變，合併化療使用；2026 年 2 月起，第一線使用不再限制療程長度。",
+          "<b>抗血管新生藥物</b>：轉移性大腸直腸癌，合併化療用於第一線或第二線，各有條件。",
+          "<b>BRAF 雙標靶</b>：BRAF V600E 突變的轉移性大腸直腸癌，2026 年 5 月起納入健保，作為第二線治療。",
+          "<b>後線治療</b>：也有口服的標靶或化療藥物可以使用，給付條件依健保規定。"
+        ]},
         { type: "resource", text: "自費藥物的費用、經濟補助或保險問題，都可以找本院癌症資源中心討論。" },
         { type: "callout", level: "info", title: "規定會更新", text: "健保給付條件時常調整，最新規定請詢問主治醫師或癌症個案管理師。確診癌症也可以申請重大傷病證明，減輕看診的部分負擔。" }
       ]
@@ -142,7 +159,10 @@ window.ARTICLES["tx-targeted"] = {
       blocks: [
         { type: "sources", items: [
           { t: "聯合報（2026/4）：肺癌標靶藥給付需組織或積水細胞檢測，健保署研議液態切片", href: "https://udn.com/news/story/7266/9437594" },
-          { t: "Neo-BOT：肺癌衛教系列（第 8 集：肺癌標靶治療）", href: "https://www.youtube.com/watch?v=ruc88dL9jbM" }
+          { t: "Neo-BOT：肺癌衛教系列（第 8 集：肺癌標靶治療）", href: "https://www.youtube.com/watch?v=ruc88dL9jbM" },
+          { t: "衛生福利部（2026/2）：放寬抗 EGFR 藥物第一線給付、BRAF 雙標靶納入健保", href: "https://mohw.gov.tw/cp-16-85379-1.html" },
+          { t: "TVBS 健康（2026/4）：BRAF 雙標靶 5 月 1 日起健保給付", href: "https://health.tvbs.com.tw/cancer/362702" },
+          { t: "Neo-BOT：大腸直腸癌衛教系列（第 10 集：大腸癌的腫瘤檢測）", href: "https://www.youtube.com/watch?v=2qXUg2IQqXM" }
         ]}
       ]
     }

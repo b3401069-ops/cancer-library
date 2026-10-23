@@ -786,7 +786,20 @@ window.Figures = (function () {
     thyroid: '<path d="M12 5v14"/><path d="M12 9c-2-4-7-3-7 2s3 7 7 4c4 3 7 1 7-4s-5-6-7-2"/>',
     sugar: '<rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01"/>',
     muscle: '<path d="M4 16c2-6 6-9 10-8 2 .5 3 2 2 4-2 3-6 2-7 5"/><path d="M4 16c3 3 9 4 14 0"/>',
-    team: '<circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20c0-3 2-6 5-6s5 3 5 6M2 18c0-2 1.5-4 3-4M22 18c0-2-1.5-4-3-4"/>'
+    team: '<circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20c0-3 2-6 5-6s5 3 5 6M2 18c0-2 1.5-4 3-4M22 18c0-2-1.5-4-3-4"/>',
+    // 大腸直腸癌
+    colon: '<path d="M6 19V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3.5a1.5 1.5 0 0 0-1.5 1.5V22"/><path d="M6 10h2M6 14h2M16 9h2M16 13h2M10 5v2M14 5v2"/>',
+    meat: '<path d="M14 4c4 0 7 3 6 7-1 5-6 9-11 9-3 0-5-2-5-5 0-4 4-5 5-8 1-2 3-3 5-3z"/><circle cx="15" cy="9" r="2"/>',
+    wine: '<path d="M8 3h8c0 5-1 8-4 8s-4-3-4-8z"/><path d="M12 11v8M8 21h8"/>',
+    sofa: '<path d="M5 12V9a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><path d="M3 12h18v5H3zM5 17v2M19 17v2"/>',
+    hourglass: '<path d="M6 3h12M6 21h12M7 3c0 6 10 6 10 9s-10 3-10 9M17 3c0 6-10 6-10 9"/>',
+    bowel: '<path d="M8 4h8v7H8z"/><path d="M5 11h14a7 7 0 0 1-7 7 7 7 0 0 1-7-7z"/><path d="M10 18l-1 3h6l-1-3"/>',
+    thin: '<path d="M3 12h18"/><path d="M3 7h4M10 7h4M17 7h4M3 17h4M10 17h4M17 17h4"/>',
+    belly: '<path d="M6 4c-2 6-2 12 1 17h10c3-5 3-11 1-17"/><path d="M12 10a3 3 0 1 1-3 3"/>',
+    scope: '<rect x="2" y="3" width="5" height="6" rx="1"/><path d="M7 6h3a3 3 0 0 1 3 3v6a3 3 0 0 0 3 3h4"/><circle cx="21" cy="18" r="1.2"/>',
+    stoma: '<path d="M6 6c-1 5 0 10 2 13 2 2 6 2 8 0 2-3 3-8 2-13"/><circle cx="12" cy="9" r="2.5"/><path d="M6 6h12"/>',
+    tube: '<path d="M9 3h6M10 3v14a2 2 0 0 0 4 0V3"/><path d="M10 11h4"/>',
+    run: '<circle cx="14" cy="4" r="2"/><path d="M9 21l3-6 3 2v5M12 15l-1-6 4 1 3 3M11 9l-4 2-1 3"/>'
   };
   function icon(name, size) {
     return '<svg class="ico" viewBox="0 0 24 24" width="' + (size || 24) + '" height="' + (size || 24) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (I[name] || I.book) + "</svg>";

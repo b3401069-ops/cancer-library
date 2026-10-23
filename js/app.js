@@ -73,7 +73,10 @@ window.App = (function () {
     var art = ARTICLES[id], booklet = art.kind === "booklet";
     var cn = CANCERS.concat(TREATMENTS).filter(function (c) { return c.id === id; })[0] || { color: "#3b418f", name: art.title, en: "" };
     if (!booklet) lastCancer = id;
-    var from = booklet && lastCancer ? CANCERS.filter(function (c) { return c.id === lastCancer; })[0] : null;
+    // 小冊的「回到哪一篇」：剛讀過的癌別；專屬某癌別的小冊（例如大腸直腸手術）一律回到該癌別
+    var txInfo = TREATMENTS.filter(function (t) { return t.id === id; })[0], fromId = lastCancer;
+    if (booklet && txInfo && txInfo.cancers !== "all" && txInfo.cancers.indexOf(lastCancer) < 0) fromId = txInfo.cancers[0];
+    var from = booklet && fromId ? CANCERS.filter(function (c) { return c.id === fromId; })[0] : null;
     curId = id; curBooklet = booklet; articleEl.innerHTML = ""; articleEl.style.setProperty("--c", cn.color);
     W.beginRender(id);
     W.setVideos(art.videos || (art.videosFrom && ARTICLES[art.videosFrom] ? ARTICLES[art.videosFrom].videos : []));
@@ -113,7 +116,7 @@ window.App = (function () {
       '<div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>' +
       '<div class="a-hero-in">' +
       '<div class="tome" aria-hidden="true"><div class="tome-back"></div><div class="tome-page p1"></div><div class="tome-page p2"></div>' +
-      '<div class="tome-cover"><span class="tome-sig">' + F.icon(art.sections[0].emblem || "book", 34) + "</span><b>" + cn.name + "</b><small>" + (cn.en || "").toUpperCase() + "</small></div></div>" +
+      '<div class="tome-cover"><span class="tome-sig">' + F.icon(art.sections[0].emblem || "book", 34) + "</span><b" + (cn.name.length > 5 ? ' class="xlong"' : cn.name.length > 3 ? ' class="long"' : "") + ">" + cn.name + "</b><small>" + (cn.en || "").toUpperCase() + "</small></div></div>" +
       '<div class="a-hero-txt"><p class="eyebrow">' + (booklet ? '<a href="#">書館</a> › ' + (from ? '<a href="#' + from.id + '">' + from.name + "</a> › " : "") + "治療小冊" : "星夜癌症衛教書館・民眾版") + '</p><h1>' + art.title + '</h1><p class="sub">' + art.subtitle + "</p>" +
       (art.status ? '<span class="badge">' + art.status + "</span>" : "") + "</div></div>" +
       '<div class="a-hero-lead"><p class="lead">' + art.lead + "</p>" +
@@ -129,7 +132,11 @@ window.App = (function () {
         '<span class="emblem" aria-hidden="true">' + F.icon(s.emblem || "book", 30) + '<svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/></svg></span>' +
         '<div><span class="ch-n">第 ' + (i + 1) + " 章</span><h2>" + s.title + "</h2>" + (s.intro ? '<p class="ch-intro">' + s.intro + "</p>" : "") + "</div>"));
       var body = el("div", "ch-body");
-      s.blocks.forEach(function (b) { var n = renderBlock(b, cn); if (n.nodeType === 1) n.classList.add("rv"); body.appendChild(n); });
+      s.blocks.forEach(function (b) {
+        // 治療小冊裡標了 only 的區塊（某癌別專屬的影片、規定），從其他癌別點進來時不顯示；直接開啟小冊時全部顯示
+        if (b.only && from && b.only !== from.id) return;
+        var n = renderBlock(b, cn); if (n.nodeType === 1) n.classList.add("rv"); body.appendChild(n);
+      });
       sec.appendChild(body); wrap.appendChild(sec);
     });
     var end = el("div", "end");

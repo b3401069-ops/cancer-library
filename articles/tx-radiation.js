@@ -76,7 +76,15 @@ window.ARTICLES["tx-radiation"] = {
             ["破皮、滲液", "不要自行擦藥，回診讓醫護人員處理。"]
           ]}
         ]},
-        { type: "videos", title: "肺癌病人的放射治療影片", eps: ["03", "13", "15"] }
+        { type: "videos", only: "lung", title: "肺癌病人的放射治療影片", eps: ["03", "13", "15"] },
+        { type: "h3", only: "colorectal", text: "直腸癌的放射治療" },
+        { type: "list", only: "colorectal", items: [
+          "<b>短程放療</b>：每週一到五，共 5 次，之後接續化療。<b>長程放療</b>：約 25–28 次（5 週多），同時吃口服化療藥。哪一種適合你，醫師會依腫瘤位置與期別討論。",
+          "<b>憋尿</b>：照射時常需要膀胱裝一定量的尿，把小腸推開、減少副作用，治療前會教你喝多少水、憋多久。",
+          "<b>肛門與會陰部皮膚</b>：治療後半段容易紅痛，便後用溫水沖洗或坐浴、輕拍乾，穿寬鬆棉質內褲。",
+          "<b>長期影響</b>：部分人日後排便次數多、急便，或影響性功能、生育能力。未來想生育的人，治療前先和醫師討論保存精子或卵子。"
+        ]},
+        { type: "videos", only: "colorectal", from: "colorectal", title: "直腸癌病人的放射治療影片", eps: ["03", "05"] }
       ]
     },
     {
@@ -110,7 +118,8 @@ window.ARTICLES["tx-radiation"] = {
       blocks: [
         { type: "sources", items: [
           { t: "聯合報：健保 2026 年起首度給付兒童癌症質子治療", href: "https://udn.com/news/story/7266/9259342" },
-          { t: "Neo-BOT：肺癌衛教系列（第 3 集：早期肺癌不適合手術，放射治療如何安排？）", href: "https://www.youtube.com/watch?v=Iti-GDr785c" }
+          { t: "Neo-BOT：肺癌衛教系列（第 3 集：早期肺癌不適合手術，放射治療如何安排？）", href: "https://www.youtube.com/watch?v=Iti-GDr785c" },
+          { t: "Neo-BOT：大腸直腸癌衛教系列（第 3 集：先開刀，還是先做化療、放射治療？）", href: "https://www.youtube.com/watch?v=8cM2fBAcqG8" }
         ]}
       ]
     }

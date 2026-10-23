@@ -114,7 +114,15 @@ window.ARTICLES["tx-chemo"] = {
         ]},
         { type: "h3", text: "打藥後的居家安全" },
         { type: "p", text: "打藥後 48 小時內，部分藥物會從尿液、糞便、嘔吐物排出。上廁所後蓋上馬桶蓋沖水兩次；處理排泄物或嘔吐物時戴手套。家人不需要和你隔離，可以正常擁抱、一起吃飯。" },
-        { type: "videos", title: "肺癌病人的化療影片", eps: ["10"] }
+        { type: "videos", only: "lung", title: "肺癌病人的化療影片", eps: ["10"] },
+        { type: "h3", only: "colorectal", text: "大腸直腸癌常用化療的特別提醒" },
+        { type: "list", only: "colorectal", items: [
+          "<b>鉑金類：怕冷</b>：打藥後幾天內，碰到冷水、冰的東西或喝冰飲，手指、喉嚨可能刺麻或緊緊的。喝溫的、戴手套拿冷的東西、冬天注意保暖。",
+          "<b>攜帶型輸注瓶</b>：氟嘧啶類常用約 46 小時的輸注瓶帶回家。管路不要拉扯或壓折，洗澡時保持乾燥；萬一漏液，戴手套用紙巾吸乾、裝袋，並聯絡醫院。",
+          "<b>口服氟嘧啶類</b>：依指示飯後服用；手腳紅腫、脫皮、疼痛（手足症候群）要告訴醫師調整。",
+          "<b>拓樸異構酶抑制劑：腹瀉</b>：打藥當天若流汗、流口水、腹部絞痛，馬上告訴護理師；回家後的延遲性腹瀉，依醫師指示服用止瀉藥並多喝水，一天超過 4 次要聯絡醫院。"
+        ]},
+        { type: "videos", only: "colorectal", from: "colorectal", title: "大腸直腸癌病人的藥物治療影片", eps: ["08", "11"] }
       ]
     },
     {
@@ -148,7 +156,8 @@ window.ARTICLES["tx-chemo"] = {
       intro: "",
       blocks: [
         { type: "sources", items: [
-          { t: "Neo-BOT：肺癌衛教系列（第 10 集：準備接受肺癌化療）", href: "https://www.youtube.com/watch?v=8ouAWUYom78" }
+          { t: "Neo-BOT：肺癌衛教系列（第 10 集：準備接受肺癌化療）", href: "https://www.youtube.com/watch?v=8ouAWUYom78" },
+          { t: "Neo-BOT：大腸直腸癌衛教系列（第 11 集：藥物治療與居家照護）", href: "https://www.youtube.com/watch?v=FaamVpyyoII" }
         ]}
       ]
     }

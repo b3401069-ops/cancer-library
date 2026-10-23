@@ -21,7 +21,7 @@ window.ARTICLES["tx-immuno"] = {
       blocks: [
         { type: "figure", id: "mech:immuno", caption: "癌細胞用 PD-L1 踩住免疫細胞的煞車（PD-1），免疫治療藥物擋住這個煞車，讓免疫細胞重新攻擊癌細胞。" },
         { type: "table", head: ["藥物類別", "作用", "常用於"], rows: [
-          ["PD-1 抑制劑", "擋住免疫細胞上的煞車接收器", "肺癌、頭頸癌、食道癌、胃癌、肝癌、黑色素瘤、腎臟癌、膀胱癌等"],
+          ["PD-1 抑制劑", "擋住免疫細胞上的煞車接收器", "肺癌、頭頸癌、食道癌、胃癌、肝癌、黑色素瘤、腎臟癌、膀胱癌，以及 MSI-H 大腸直腸癌等"],
           ["PD-L1 抑制劑", "擋住癌細胞上踩煞車的蛋白質", "肺癌、肝癌、膀胱癌、乳癌（部分類型）等"],
           ["CTLA-4 抑制劑", "放開另一個免疫煞車，常和 PD-1 抑制劑合併", "黑色素瘤、肝癌、腎臟癌、肺癌等"]
         ], note: "用哪一種、和什麼一起用，依癌別、期別與檢測結果決定。" },
@@ -34,6 +34,7 @@ window.ARTICLES["tx-immuno"] = {
           { parts: ["免疫", "+", "另一種免疫"], t: "兩種免疫藥物合併", when: "肝癌、腎臟癌、黑色素瘤等，部分也會再加化療" },
           { parts: ["免疫"], t: "單獨使用", when: "例如部分 PD-L1 表現量很高的晚期肺癌，或其他治療之後的下一線治療" }
         ]},
+        { type: "callout", only: "colorectal", level: "info", title: "大腸直腸癌：先看 MSI／MMR", text: "大腸直腸癌和肺癌不同：免疫治療主要用在 <b>MSI-H／dMMR</b> 的病人（約占轉移性大腸癌的 5%），而且常常<b>單獨使用</b>就有很好的效果。其他大多數病人，免疫治療單獨使用效果有限，標準治療是化療合併標靶藥物。" },
         { type: "p", text: "<b>PD-L1 檢測</b>：用腫瘤組織檢測 PD-L1 的表現量，可以幫助醫師判斷免疫治療的效果，也和部分健保給付條件有關。" }
       ]
     },
@@ -60,7 +61,8 @@ window.ARTICLES["tx-immuno"] = {
           { t: "定期影像評估", d: "約每 2–3 個月做電腦斷層等檢查，確認治療效果。" }
         ]},
         { type: "callout", level: "info", title: "腫瘤先變大、再變小？", text: "少數人在免疫治療初期，影像上腫瘤看起來變大，之後才縮小，這是免疫細胞進入腫瘤造成的。醫師會綜合症狀與後續檢查判斷，不一定馬上換藥。" },
-        { type: "videos", title: "肺癌病人的免疫治療影片", eps: ["09", "07"] }
+        { type: "videos", only: "lung", title: "肺癌病人的免疫治療影片", eps: ["09", "07"] },
+        { type: "videos", only: "colorectal", from: "colorectal", title: "大腸直腸癌病人的腫瘤檢測與藥物治療影片", eps: ["10", "11"] }
       ]
     },
     {
@@ -100,6 +102,9 @@ window.ARTICLES["tx-immuno"] = {
           "<b>近年逐步放寬</b>：例如 2025 年 6 月起，沒有 EGFR、ALK、ROS1 基因變化的轉移性非鱗狀非小細胞肺癌，第一線使用免疫治療合併抗血管新生藥物與化療，不再限制 PD-L1 表現量。",
           "<b>不符合條件時</b>：可以選擇自費，或詢問藥廠的病人支持方案、臨床試驗。"
         ]},
+        { type: "list", only: "colorectal", items: [
+          "<b>大腸直腸癌</b>：2025 年 6 月起，MSI-H／dMMR 的轉移性大腸直腸癌，可以在第一線使用健保給付的免疫治療。"
+        ]},
         { type: "callout", level: "info", title: "規定會更新", text: "健保給付條件時常調整，最新規定請詢問主治醫師或癌症個案管理師。" },
         { type: "resource", text: "治療費用、自費藥物或經濟上的壓力，都可以找本院癌症資源中心討論，社工師會協助了解補助與保險資源。" }
       ]
@@ -123,7 +128,8 @@ window.ARTICLES["tx-immuno"] = {
         { type: "sources", items: [
           { t: "蕃新聞（2025/6）：肺癌第一線「免疫＋抗血管新生」納入健保給付，不限 PD-L1", href: "https://n.yam.com/Article/20250620808646" },
           { t: "康健雜誌（2019）：健保給付免疫治療的申請與療效評估機制", href: "https://www.commonhealth.com.tw/article/79070" },
-          { t: "Neo-BOT：肺癌衛教系列（第 9 集：肺癌免疫治療）", href: "https://www.youtube.com/watch?v=JI86grp_jUA" }
+          { t: "Neo-BOT：肺癌衛教系列（第 9 集：肺癌免疫治療）", href: "https://www.youtube.com/watch?v=JI86grp_jUA" },
+          { t: "TVBS 健康（2025/6）：MSI-H 轉移性大腸直腸癌第一線免疫治療納入健保", href: "https://health.tvbs.com.tw/cancer/355365" }
         ]}
       ]
     }
