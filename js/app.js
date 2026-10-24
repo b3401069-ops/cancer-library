@@ -77,6 +77,7 @@ window.App = (function () {
     var txInfo = TREATMENTS.filter(function (t) { return t.id === id; })[0], fromId = lastCancer;
     if (booklet && txInfo && txInfo.cancers !== "all" && txInfo.cancers.indexOf(lastCancer) < 0) fromId = txInfo.cancers[0];
     var from = booklet && fromId ? CANCERS.filter(function (c) { return c.id === fromId; })[0] : null;
+    var facts = (from && art.factsBy && art.factsBy[from.id]) || art.facts;
     curId = id; curBooklet = booklet; articleEl.innerHTML = ""; articleEl.style.setProperty("--c", cn.color);
     W.beginRender(id);
     W.setVideos(art.videos || (art.videosFrom && ARTICLES[art.videosFrom] ? ARTICLES[art.videosFrom].videos : []));
@@ -120,10 +121,13 @@ window.App = (function () {
       '<div class="a-hero-txt"><p class="eyebrow">' + (booklet ? '<a href="#">書館</a> › ' + (from ? '<a href="#' + from.id + '">' + from.name + "</a> › " : "") + "治療小冊" : "星夜癌症衛教書館・民眾版") + '</p><h1>' + art.title + '</h1><p class="sub">' + art.subtitle + "</p>" +
       (art.status ? '<span class="badge">' + art.status + "</span>" : "") + "</div></div>" +
       '<div class="a-hero-lead"><p class="lead">' + art.lead + "</p>" +
-      (art.facts ? '<ul class="facts">' + art.facts.map(function (f) { return "<li><b>" + f.n + "</b><span>" + f.t + "</span></li>"; }).join("") + "</ul>" : "") + "</div>";
+      (facts ? '<ul class="facts">' + facts.map(function (f) { return "<li><b>" + f.n + "</b><span>" + f.t + "</span></li>"; }).join("") + "</ul>" : "") + "</div>";
 
     var wrap = el("div", "wrap");
     wrap.appendChild(el("div", "printnote", "這是列印版面：動畫與互動已展開成文字。請用瀏覽器選單的「列印」印出，或請門診人員協助列印。"));
+    // 共用小冊：說明目前依哪個癌別顯示
+    if (booklet && from && txInfo && txInfo.cancers === "all")
+      wrap.appendChild(el("p", "ctxnote", '<span class="ctx-chip" style="--cc:' + from.color + '">依《' + from.name + '》顯示</span>這本小冊各癌別共用。你從《' + from.name + '》點進來，所以療程、檢測、健保規定與影片都只列出和' + from.name + '有關的內容；標示其他癌別的部分僅供對照。'));
     var meta = el("p", "meta", "最後更新：" + art.updated + "　審核醫師：" + art.reviewer + "　共 " + art.sections.length + " 章");
     wrap.appendChild(meta);
     art.sections.forEach(function (s, i) {
@@ -135,6 +139,7 @@ window.App = (function () {
       s.blocks.forEach(function (b) {
         // 治療小冊裡標了 only 的區塊（某癌別專屬的影片、規定），從其他癌別點進來時不顯示；直接開啟小冊時全部顯示
         if (b.only && from && b.only !== from.id) return;
+        if (b.except && from && b.except.indexOf(from.id) > -1) return;
         var n = renderBlock(b, cn); if (n.nodeType === 1) n.classList.add("rv"); body.appendChild(n);
       });
       sec.appendChild(body); wrap.appendChild(sec);

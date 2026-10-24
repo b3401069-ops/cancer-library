@@ -76,7 +76,7 @@ window.ARTICLES["tx-radiation"] = {
             ["破皮、滲液", "不要自行擦藥，回診讓醫護人員處理。"]
           ]}
         ]},
-        { type: "videos", only: "lung", title: "肺癌病人的放射治療影片", eps: ["03", "13", "15"] },
+        { type: "videos", only: "lung", tag: "肺癌", title: "肺癌病人的放射治療影片", eps: ["03", "13", "15"] },
         { type: "h3", only: "colorectal", text: "直腸癌的放射治療" },
         { type: "list", only: "colorectal", items: [
           "<b>短程放療</b>：每週一到五，共 5 次，之後接續化療。<b>長程放療</b>：約 25–28 次（5 週多），同時吃口服化療藥。哪一種適合你，醫師會依腫瘤位置與期別討論。",
@@ -84,7 +84,7 @@ window.ARTICLES["tx-radiation"] = {
           "<b>肛門與會陰部皮膚</b>：治療後半段容易紅痛，便後用溫水沖洗或坐浴、輕拍乾，穿寬鬆棉質內褲。",
           "<b>長期影響</b>：部分人日後排便次數多、急便，或影響性功能、生育能力。未來想生育的人，治療前先和醫師討論保存精子或卵子。"
         ]},
-        { type: "videos", only: "colorectal", from: "colorectal", title: "直腸癌病人的放射治療影片", eps: ["03", "05"] }
+        { type: "videos", only: "colorectal", from: "colorectal", tag: "大腸直腸癌", title: "直腸癌病人的放射治療影片", eps: ["03", "05"] }
       ]
     },
     {

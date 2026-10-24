@@ -86,9 +86,10 @@ window.Widgets = (function () {
       return '<i style="flex:' + (p.to - p.from + 1) + ";background:" + tone(p) + '"></i>';
     }).join("") + '<span class="cy-mark"></span></div>';
     w.innerHTML = '<div class="cy-head"><span class="cy-day">第 <b>1</b> 天</span><span class="cy-of">/ ' + b.days + " 天一個週期</span></div>" + bar +
-      '<label class="cy-lbl" for="cy-range">拖動選擇第幾天</label><input type="range" id="cy-range" min="1" max="' + b.days + '" value="1">' +
-      '<div class="cy-ticks" aria-hidden="true"><span>第 1 天</span><span>第 7 天</span><span>第 14 天</span><span>第 21 天</span></div><div class="panel cy-panel" aria-live="polite"></div>';
-    var rg = w.querySelector("#cy-range"), day = w.querySelector(".cy-day b"), mk = w.querySelector(".cy-mark"), pn = w.querySelector(".cy-panel"), last = null;
+      '<label class="cy-lbl" for="cy-range-' + b.days + '">拖動選擇第幾天</label><input type="range" id="cy-range-' + b.days + '" min="1" max="' + b.days + '" value="1">' +
+      '<div class="cy-ticks" aria-hidden="true">' + (b.ticks || [1, 7, 14, 21]).map(function (d) { return "<span>第 " + d + " 天</span>"; }).join("") + '</div><div class="panel cy-panel" aria-live="polite"></div>';
+    if (b.title) w.insertAdjacentHTML("afterbegin", '<h4 class="vg-h">' + b.title + "</h4>");
+    var rg = w.querySelector("input[type=range]"), day = w.querySelector(".cy-day b"), mk = w.querySelector(".cy-mark"), pn = w.querySelector(".cy-panel"), last = null;
     function upd() {
       var d = +rg.value, p = b.phases.filter(function (x) { return d >= x.from && d <= x.to; })[0];
       day.textContent = d; mk.style.left = ((d - .5) / b.days * 100) + "%"; mk.style.borderColor = tone(p);
@@ -234,7 +235,7 @@ window.Widgets = (function () {
   W.videos = function (b, pm) {
     var w = el("div", "videos");
     if (b.groups) b.groups.forEach(function (g) { w.insertAdjacentHTML("beforeend", '<h4 class="vg-h">' + g.t + "</h4>" + vcards(g.eps, pm, b.from ? vmap(b.from) : null)); });
-    else w.innerHTML = (b.title ? '<h4 class="vg-h">' + b.title + "</h4>" : "") + vcards(b.eps, pm, b.from ? vmap(b.from) : null);
+    else w.innerHTML = (b.title ? '<h4 class="vg-h">' + (b.tag ? '<span class="vg-tag" style="background:' + (((window.CANCERS || []).filter(function (c) { return c.name === b.tag; })[0] || {}).color || "#3d7bb8") + '">' + b.tag + "</span>" : "") + b.title + "</h4>" : "") + vcards(b.eps, pm, b.from ? vmap(b.from) : null);
     return w;
   };
 
@@ -305,6 +306,19 @@ window.Widgets = (function () {
       inp.value = Math.max(+inp.min, Math.min(+inp.max, n)); calc();
     });
     calc(); return w;
+  };
+
+  /* ---------- 對照卡：某癌別和其他癌別的差異（hi 為要強調的欄） ---------- */
+  W.compare = function (b, pm) {
+    var w = el("div", "compare" + (pm ? " pm" : "")); if (b.color) w.style.setProperty("--c", b.color);
+    var hi = b.hi || 0;
+    w.innerHTML = (b.title ? '<div class="cmp-title">' + (b.badge ? '<span class="cmp-badge">' + b.badge + "</span>" : "") + "<b>" + b.title + "</b></div>" : "") +
+      '<div class="cmp-grid" style="--cols:' + b.cols.length + '"><span class="cmp-h"></span>' +
+      b.cols.map(function (c, i) { return '<span class="cmp-h' + (i === hi ? " hi" : "") + '">' + c + "</span>"; }).join("") +
+      b.rows.map(function (r) {
+        return '<span class="cmp-l">' + r[0] + "</span>" + r.slice(1).map(function (c, i) { return '<span class="cmp-c' + (i === hi ? " hi" : "") + '" data-col="' + b.cols[i] + '">' + c + "</span>"; }).join("");
+      }).join("") + "</div>" + (b.note ? '<p class="cmp-note">' + b.note + "</p>" : "");
+    return w;
   };
 
   /* ---------- 大腸癌篩檢資格（糞便潛血檢查） ---------- */
