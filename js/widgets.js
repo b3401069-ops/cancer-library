@@ -321,6 +321,91 @@ window.Widgets = (function () {
     return w;
   };
 
+  /* ---------- 運動量評估：說話測試＋自覺費力，以及一週運動紀錄 ----------
+     中等強度 1 分鐘算 1 分、費力 1 分鐘算 2 分、輕鬆不計；目標每週 150 分＋肌力訓練 2 天。紀錄只存在使用者自己的瀏覽器。 */
+  var RPE = [
+    { max: 2, t: "很輕鬆", c: "#7fb4e8", talk: "可以唱歌", ex: "慢慢散步、做家事", tip: "這樣的活動對身體也有好處，但還不算運動量。試著稍微加快速度。", lvl: 0 },
+    { max: 4, t: "輕鬆", c: "#6fcf9f", talk: "可以唱歌", ex: "一般速度散步", tip: "再快一點，到「會微喘、還能說話」的程度，就是中等強度。", lvl: 0 },
+    { max: 6, t: "中等強度（目標）", c: "#e8c77f", talk: "可以說話，但沒辦法唱歌", ex: "快走、騎腳踏車、游泳、跳舞", tip: "就是這個強度！會微喘、微微流汗，還能和旁邊的人聊天。", lvl: 1 },
+    { max: 8, t: "費力", c: "#f0a35e", talk: "只能說幾個字就要換氣", ex: "慢跑、爬山、爬樓梯", tip: "體力好的時候可以，這樣的 1 分鐘可以算 2 分鐘。治療期間不必勉強到這個程度。", lvl: 2 },
+    { max: 10, t: "太喘了，請放慢或停下", c: "#e2604e", talk: "幾乎無法說話", ex: "全力衝刺", tip: "請放慢速度休息。如果胸痛、頭暈、心跳很亂，立即停止並就醫。", lvl: 3 }
+  ];
+  W.exercise = function (b, pm) {
+    if (pm) return el("div", "tool", "<h4>怎麼知道運動量夠不夠？</h4><p><b>說話測試</b>：運動時可以說話、但沒辦法唱歌，就是中等強度（自覺費力 0–10 分中的 5–6 分）。</p><p><b>每週目標</b>：中等強度累積 150 分鐘（費力的運動 1 分鐘算 2 分鐘），加上 2 天肌力訓練。體力不好時，從每天 10 分鐘開始，每週比前一週多一點就好。</p>");
+    var w = el("div", "tool exer");
+    var days = ["一", "二", "三", "四", "五", "六", "日"], key = "exercise-week";
+    var data = store(key) || {}; if (!data.d) data = { d: days.map(function () { return { m: 0, i: 1, s: 0 }; }) };
+    w.innerHTML =
+      '<h4 class="ex-h"><span class="ex-n">1</span>這樣算運動嗎？用「說話測試」評估強度</h4>' +
+      '<p class="ex-p">下次運動時，拖動下方的刻度，選出你覺得有多喘（0 是完全不費力、10 是最喘）：</p>' +
+      '<div class="ex-rpe"><input type="range" min="0" max="10" value="5" aria-label="自覺費力程度 0 到 10"><div class="ex-scale" aria-hidden="true">' +
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return "<span>" + n + "</span>"; }).join("") + '</div></div>' +
+      '<div class="ex-out" aria-live="polite"></div>' +
+      '<h4 class="ex-h"><span class="ex-n">2</span>記下這一週的活動，看看夠不夠</h4>' +
+      '<p class="ex-p">每天填上運動幾分鐘、強度，有做肌力訓練（例如彈力帶、坐站起立、扶牆蹲）就勾選：</p>' +
+      '<div class="ex-week"></div>' +
+      '<div class="ex-sum"><div class="ex-bar"><span>每週中等強度 150 分鐘</span><div class="ex-track"><i></i></div><b class="ex-min"></b></div>' +
+      '<div class="ex-bar"><span>肌力訓練 2 天</span><div class="ex-track str"><i></i></div><b class="ex-str"></b></div>' +
+      '<p class="ex-fb" aria-live="polite"></p><button type="button" class="btn-s ex-clear">清除這週紀錄</button></div>';
+    // 1. 強度
+    var rg = w.querySelector(".ex-rpe input"), out = w.querySelector(".ex-out");
+    function rpe() {
+      var v = +rg.value, z = RPE.filter(function (r) { return v <= r.max; })[0];
+      rg.style.setProperty("--zc", z.c); rg.style.setProperty("--p", (v * 10) + "%");
+      out.style.setProperty("--zc", z.c);
+      out.innerHTML = '<div class="ex-zone"><span class="ex-dot"></span><b>' + v + " 分：" + z.t + '</b></div><dl><dt>說話測試</dt><dd>' + z.talk + "</dd><dt>像是</dt><dd>" + z.ex + "</dd></dl><p>" + z.tip + "</p>";
+    }
+    rg.addEventListener("input", rpe); rpe();
+    // 2. 一週紀錄
+    var wk = w.querySelector(".ex-week"), lv = ["輕鬆", "中等", "費力"];
+    days.forEach(function (dname, i) {
+      var r = el("div", "ex-day");
+      r.innerHTML = '<span class="ex-dn">週' + dname + '</span>' +
+        '<div class="num"><button type="button" data-d="-10" aria-label="週' + dname + '減 10 分鐘">−</button><input type="number" inputmode="numeric" min="0" max="300" step="5" aria-label="週' + dname + '運動分鐘"><button type="button" data-d="10" aria-label="週' + dname + '加 10 分鐘">＋</button><span>分</span></div>' +
+        '<div class="ex-lv" role="radiogroup" aria-label="週' + dname + '強度">' + lv.map(function (l, j) { return '<button type="button" role="radio" data-i="' + j + '">' + l + "</button>"; }).join("") + "</div>" +
+        '<label class="ex-st"><input type="checkbox"><span>肌力</span></label>';
+      wk.appendChild(r);
+    });
+    var rows = wk.querySelectorAll(".ex-day");
+    function paint() {
+      rows.forEach(function (r, i) {
+        var d = data.d[i];
+        r.querySelector("input[type=number]").value = d.m;
+        r.querySelectorAll(".ex-lv button").forEach(function (x, j) { x.setAttribute("aria-checked", j === d.i ? "true" : "false"); });
+        r.querySelector("input[type=checkbox]").checked = !!d.s;
+      });
+      var pts = 0, light = 0, st = 0;
+      data.d.forEach(function (d) { if (d.i === 1) pts += d.m; else if (d.i === 2) pts += d.m * 2; else light += d.m; if (d.s) st++; });
+      w.querySelector(".ex-track i").style.width = Math.min(100, pts / 150 * 100) + "%";
+      w.querySelector(".ex-track.str i").style.width = Math.min(100, st / 2 * 100) + "%";
+      w.querySelector(".ex-min").textContent = pts + " / 150";
+      w.querySelector(".ex-str").textContent = st + " / 2 天";
+      var fb;
+      if (pts >= 150 && st >= 2) fb = "🎉 太棒了！這週已經達到建議的運動量，維持下去。";
+      else if (pts >= 150) fb = "有氧運動已經達標！再加上每週 2 天的肌力訓練會更好。";
+      else if (pts >= 75) fb = "已經完成一半以上，再多 " + (150 - pts) + " 分鐘就達標。也可以把散步加快到「會微喘」的程度。";
+      else if (pts + light > 0) fb = "好的開始！治療期間體力不好很正常，每週比上一週多一點就好。" + (light ? "輕鬆的活動也很有幫助，試著慢慢加快到中等強度。" : "");
+      else fb = "從每天散步 10 分鐘開始就很好。填上你這週的活動吧！";
+      w.querySelector(".ex-fb").textContent = fb;
+      store(key, data);
+    }
+    wk.addEventListener("click", function (e) {
+      var r = e.target.closest(".ex-day"); if (!r) return; var i = [].indexOf.call(rows, r), d = data.d[i];
+      var bt = e.target.closest("button[data-d]"); if (bt) { d.m = Math.max(0, Math.min(300, d.m + +bt.dataset.d)); paint(); return; }
+      var lvb = e.target.closest(".ex-lv button"); if (lvb) { d.i = +lvb.dataset.i; if (!d.m) d.m = 10; paint(); }
+    });
+    wk.addEventListener("change", function (e) {
+      var r = e.target.closest(".ex-day"); if (!r) return; var i = [].indexOf.call(rows, r), d = data.d[i];
+      if (e.target.type === "number") d.m = Math.max(0, Math.min(300, parseInt(e.target.value, 10) || 0));
+      if (e.target.type === "checkbox") d.s = e.target.checked ? 1 : 0;
+      paint();
+    });
+    w.querySelector(".ex-clear").addEventListener("click", function () { data = { d: days.map(function () { return { m: 0, i: 1, s: 0 }; }) }; paint(); });
+    paint();
+    w.insertAdjacentHTML("beforeend", '<p class="ex-note">中等強度 1 分鐘算 1 分、費力 1 分鐘算 2 分，輕鬆的活動不計入。紀錄只存在你自己的手機或電腦裡。正在化療、剛開完刀，或有心臟病、骨頭轉移的人，開始新的運動前請先問醫師。</p>');
+    return w;
+  };
+
   /* ---------- 大腸癌篩檢資格（糞便潛血檢查） ---------- */
   function crcScreen() {
     var w = el("form", "tool screen-tool"); w.setAttribute("aria-label", "大腸癌篩檢資格檢查");
@@ -412,7 +497,10 @@ window.Widgets = (function () {
       var t = el("div", "mech-txt",
         "<h4>" + m.t + '<small>' + m.short + "</small></h4>" +
         '<dl><dt>怎麼作用</dt><dd>' + m.how + "</dd><dt>怎麼進行</dt><dd>" + m.when + "</dd><dt>常見副作用</dt><dd>" + m.se + '</dd><dt>小提醒</dt><dd>' + m.tip + "</dd></dl>" + (m.book && !pm ? bookLink(m.book) : "") + vrelated(m.eps, pm));
-      if (!pm) d.appendChild(fig); d.appendChild(t); return d;
+      if (!pm) d.appendChild(fig); d.appendChild(t);
+      // extra：只屬於這一項治療的補充區塊（例如大腸直腸癌免疫治療的對照卡），放在這一頁的下方
+      if (m.extra && W[m.extra.type]) { var x = W[m.extra.type](m.extra, pm); x.classList.add("mech-extra"); d.appendChild(x); }
+      return d;
     };
     if (pm) return staticList(b.items, r);
     return picker(b.items, "選擇治療方式", r, {

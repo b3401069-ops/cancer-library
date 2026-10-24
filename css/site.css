@@ -759,3 +759,44 @@ body.printview .panel { break-inside: avoid; }
   .cmp-c::before { content: attr(data-col); display: block; font-size: .8em; font-weight: 700; margin-bottom: 2px; }
   .cmp-c.hi::before { color: var(--c, var(--accent)); }
 }
+.mech-extra { grid-column: 1 / -1; margin-top: 4px; }
+/* 運動量評估 */
+.exer .ex-h { display: flex; align-items: center; gap: 10px; margin: 6px 0 4px; font-size: 1.05em; }
+.exer .ex-h:not(:first-child) { margin-top: 26px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.ex-n { width: 26px; height: 26px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: .85em; color: var(--star); background: var(--accent); }
+.ex-p { margin: 0 0 10px; color: var(--muted); font-size: .94em; }
+.ex-rpe input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; border-radius: 99px; background: linear-gradient(90deg, #7fb4e8 0%, #6fcf9f 30%, #e8c77f 50%, #e8c77f 62%, #f0a35e 75%, #e2604e 100%); outline-offset: 4px; }
+.ex-rpe input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 5px solid var(--zc, var(--gold)); box-shadow: 0 2px 8px rgba(0,0,0,.25); cursor: grab; }
+.ex-rpe input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 5px solid var(--zc, var(--gold)); }
+.ex-scale { display: flex; justify-content: space-between; margin: 6px 4px 0; font-size: .78em; color: var(--muted); }
+.ex-out { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); border-left: 6px solid var(--zc); transition: border-color .3s; }
+.ex-out .ex-zone { display: flex; align-items: center; gap: 8px; font-size: 1.08em; }
+.ex-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--zc); }
+.ex-out dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 8px 0; font-size: .94em; }
+.ex-out dt { color: var(--gold); font-weight: 700; }
+.ex-out dd { margin: 0; }
+.ex-out p { margin: 0; color: var(--muted); font-size: .94em; }
+.ex-week { display: grid; gap: 6px; }
+.ex-day { display: grid; grid-template-columns: 48px auto 1fr auto; align-items: center; gap: 8px 12px; padding: 6px 10px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.ex-dn { font-weight: 700; }
+.ex-day .num input { width: 52px; }
+.ex-lv { display: inline-flex; border-radius: 99px; border: 1px solid var(--line); overflow: hidden; justify-self: start; }
+.ex-lv button { border: 0; border-radius: 0; box-shadow: none; background: none; padding: 5px 10px; font-size: .86em; color: var(--muted); }
+.ex-lv button[aria-checked="true"] { background: var(--accent); color: var(--star); font-weight: 700; }
+.ex-lv button[data-i="1"][aria-checked="true"] { background: #b8902f; color: #fff; }
+.ex-lv button[data-i="2"][aria-checked="true"] { background: #c8663a; color: #fff; }
+.ex-st { display: inline-flex; align-items: center; gap: 4px; font-size: .9em; white-space: nowrap; }
+.ex-sum { margin-top: 14px; padding: 14px; border-radius: 14px; background: var(--info-bg); }
+.ex-bar { display: grid; grid-template-columns: 9em 1fr auto; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .92em; }
+.ex-track { height: 12px; border-radius: 99px; background: color-mix(in srgb, var(--line) 70%, transparent); overflow: hidden; }
+.ex-track i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--gold), #7fdcaa); transition: width .5s cubic-bezier(.3,.8,.3,1); }
+.ex-track.str i { background: linear-gradient(90deg, #aab1ff, #8a6fd1); }
+.ex-fb { margin: 8px 0 10px; font-weight: 700; }
+.ex-note { margin: 12px 0 0; font-size: .86em; color: var(--muted); }
+@media (max-width: 640px) {
+  .ex-day { grid-template-columns: 40px 1fr auto; }
+  .ex-day .ex-lv { grid-column: 1 / -1; justify-self: stretch; display: grid; grid-template-columns: repeat(3, 1fr); }
+  .ex-day .ex-st { grid-row: 1; grid-column: 3; }
+  .ex-bar { grid-template-columns: 1fr auto; }
+  .ex-bar .ex-track { grid-column: 1 / -1; grid-row: 2; }
+}
