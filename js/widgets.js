@@ -55,12 +55,55 @@ window.Widgets = (function () {
     var V = src || VIDS;
     return '<div class="vgrid">' + eps.filter(function (n) { return V[n]; }).map(function (n) {
       var v = V[n], url = "https://www.youtube.com/watch?v=" + v.id;
-      return '<a class="vcard" href="' + url + '" target="_blank" rel="noopener"><span class="vc-art" aria-hidden="true"><i></i><b>' + n + '</b></span>' +
+      return '<a class="vcard" href="' + url + '" target="_blank" rel="noopener" data-yt="' + v.id + '" data-n="' + n + '" data-t="' + v.t.replace(/"/g, "&quot;") + '"><span class="vc-art" aria-hidden="true"><i></i><b>' + n + '</b></span>' +
         '<span class="vc-txt"><small>第 ' + n + ' 集</small><span class="vc-t">' + v.t + "</span>" +
-        (pm ? '<span class="vc-u">youtu.be/' + v.id + "</span>" : '<span class="vc-go">在 YouTube 觀看 ↗</span>') + "</span></a>";
+        (pm ? '<span class="vc-u">youtu.be/' + v.id + "</span>" : '<span class="vc-go">' + (EMBED ? "點一下直接播放 ▶" : "在 YouTube 觀看 ↗") + "</span>") + "</span></a>";
     }).join("") + "</div>";
   }
   function vrelated(eps, pm) { return eps && eps.length ? '<div class="vrel"><span class="vrel-h">相關影片</span>' + vcards(eps, pm) + "</div>" : ""; }
+  /* ---------- 影片播放視窗 ----------
+     正式網站（cancer-library.mingneo.dev 等）點影片卡直接在頁面上播放，使用 youtube-nocookie（不追蹤）；
+     claude.ai 預覽版不能嵌入，維持在 YouTube 開啟。播放器只在點開時才載入，關閉即停止播放。 */
+  var EMBED = /(^|\.)mingneo\.dev$|\.pages\.dev$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  var player = null, playList = [], playIdx = 0, lastFocus = null;
+  function openPlayer(cards, i) {
+    playList = cards; playIdx = i; lastFocus = document.activeElement;
+    if (!player) {
+      player = el("div", "yt-modal"); player.setAttribute("role", "dialog"); player.setAttribute("aria-modal", "true"); player.setAttribute("aria-label", "影片播放");
+      player.innerHTML = '<div class="yt-box"><div class="yt-top"><div class="yt-title"><small></small><b></b></div><button type="button" class="yt-x" aria-label="關閉影片">✕</button></div>' +
+        '<div class="yt-frame"></div><div class="yt-bar"><button type="button" class="btn-s yt-prev">← 上一集</button><a class="yt-ext" target="_blank" rel="noopener">在 YouTube 開啟 ↗</a><button type="button" class="btn-s yt-next">下一集 →</button></div></div>';
+      document.body.appendChild(player);
+      player.addEventListener("click", function (e) { if (e.target === player) closePlayer(); });
+      player.querySelector(".yt-x").addEventListener("click", closePlayer);
+      player.querySelector(".yt-prev").addEventListener("click", function () { showClip(playIdx - 1); });
+      player.querySelector(".yt-next").addEventListener("click", function () { showClip(playIdx + 1); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && player.classList.contains("on")) closePlayer(); });
+    }
+    showClip(i); player.classList.add("on"); document.documentElement.classList.add("yt-lock");
+    player.querySelector(".yt-x").focus();
+  }
+  function showClip(i) {
+    if (i < 0 || i >= playList.length) return;
+    playIdx = i; var c = playList[i], id = c.dataset.yt;
+    player.querySelector(".yt-title small").textContent = "第 " + c.dataset.n + " 集";
+    player.querySelector(".yt-title b").textContent = c.dataset.t;
+    player.querySelector(".yt-frame").innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1" title="' + c.dataset.t.replace(/"/g, "&quot;") + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+    player.querySelector(".yt-ext").href = "https://www.youtube.com/watch?v=" + id;
+    player.querySelector(".yt-prev").hidden = i === 0;
+    player.querySelector(".yt-next").hidden = i === playList.length - 1;
+  }
+  function closePlayer() {
+    player.classList.remove("on"); player.querySelector(".yt-frame").innerHTML = "";
+    document.documentElement.classList.remove("yt-lock"); if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  if (EMBED) document.addEventListener("click", function (e) {
+    var c = e.target.closest && e.target.closest(".vcard[data-yt]"); if (!c || document.body.classList.contains("printview")) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return; // 想在新分頁開啟時，照原本的連結
+    e.preventDefault();
+    var cards = [].slice.call(c.closest(".vgrid").querySelectorAll(".vcard[data-yt]"));
+    openPlayer(cards, cards.indexOf(c));
+  });
+
   /* ---------- 治療小冊入口 ---------- */
   W.booklets = function (b, pm) {
     var list = (window.TREATMENTS || []).filter(function (t) { return t.cancers === "all" || t.cancers.indexOf(b.cancer) > -1; });

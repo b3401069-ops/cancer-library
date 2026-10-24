@@ -56,7 +56,7 @@
 - img/logo.png 為院徽，院方同意使用（2026-10-21）。
 
 ## 平台限制
-- 發佈的網頁不能嵌入 YouTube 播放器，影片以連結卡片呈現，點擊後在 YouTube 開啟。
+- 影片：正式網站（mingneo.dev、pages.dev）點影片卡會在頁面上直接播放（youtube-nocookie，點開才載入，關閉即停止，可切換上一集／下一集）；claude.ai 預覽版不能嵌入，仍在 YouTube 開啟。影片需在 YouTube 設定為「允許嵌入」。
 - 網頁不能自己開啟列印視窗；「列印版」按鈕切換成適合列印的版面，再由使用者用瀏覽器選單列印。
 - 網站不載入任何外部程式：Three.js 放在 vendor/ 自行託管（2026-10-22 起）。外部只連 Google Fonts 字型。圖片請用 SVG 內嵌或放在網站檔案中。
 - 純靜態網站：沒有 PHP、資料庫、表單或登入，不收集任何資料。Cloudflare 的安全標頭設定在 GitHub 版的 _headers 檔。
