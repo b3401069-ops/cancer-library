@@ -693,9 +693,17 @@ window.Figures = (function () {
 
   /* ---------- 放射治療技術比較 ----------
      橫切面：身體、腫瘤、脊髓與心臟（需要保護的器官），四種技術的射線與劑量分布。 */
-  function rtTech(kind) {
-    var D = 6, CX = 200, CY = 130, k = "rt" + kind;
-    var base = '<ellipse cx="' + CX + '" cy="' + CY + '" rx="150" ry="96" fill="#232c72" stroke="#5b66b8" stroke-width="1.5"/>' +
+  // site："liver" 改畫上腹部橫切面（肝臟、胃、腎臟、脊髓），其他照舊畫胸部（肺、心臟、脊髓）
+  function rtTech(kind, site) {
+    var D = 6, CX = 200, CY = 130, k = "rt" + kind + (site || "");
+    var base = site === "liver" ?
+      '<ellipse cx="' + CX + '" cy="' + CY + '" rx="150" ry="96" fill="#232c72" stroke="#5b66b8" stroke-width="1.5"/>' +
+      '<path d="M66 118 C 64 78 110 50 170 52 C 222 54 252 70 250 96 C 248 124 220 150 180 166 C 140 180 96 176 78 158 C 68 148 66 134 66 118 Z" fill="#b5564e" opacity=".6" stroke="#e9a08f" stroke-opacity=".6"/>' +
+      txt(96, 154, "肝臟", { fill: "#ffd9cc", size: 10.5, weight: 700 }) +
+      '<ellipse cx="282" cy="104" rx="38" ry="30" fill="#c9a36b" opacity=".3"/>' + txt(284, 108, "胃", { fill: "#e8d3a8", size: 10.5 }) +
+      '<ellipse cx="146" cy="196" rx="20" ry="13" fill="#b05a6a" opacity=".5"/><ellipse cx="256" cy="196" rx="20" ry="13" fill="#b05a6a" opacity=".5"/>' + txt(256, 200, "腎臟", { fill: "#fbd0db", size: 10 }) +
+      '<circle cx="200" cy="206" r="13" fill="#3a4296" stroke="#aab1ff" stroke-width="1.4"/>' + txt(200, 210, "脊髓", { fill: "#d9dcf5", size: 10.5 })
+      : '<ellipse cx="' + CX + '" cy="' + CY + '" rx="150" ry="96" fill="#232c72" stroke="#5b66b8" stroke-width="1.5"/>' +
       '<ellipse cx="150" cy="122" rx="52" ry="58" fill="#c87e9a" opacity=".35"/><ellipse cx="252" cy="122" rx="52" ry="58" fill="#c87e9a" opacity=".35"/>' +
       '<circle cx="200" cy="206" r="13" fill="#3a4296" stroke="#aab1ff" stroke-width="1.4"/>' + txt(200, 210, "脊髓", { fill: "#d9dcf5", size: 10.5 }) +
       '<ellipse cx="214" cy="160" rx="24" ry="18" fill="#e0566b" opacity=".45"/>' + txt(214, 164, "心臟", { fill: "#fbd0db", size: 10.5 });

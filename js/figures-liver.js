@@ -37,7 +37,7 @@
     ok: ["#d77c6c", "#a8484e", "#6d2a3a", "#f2b0a2"],
     hep: ["#e8735e", "#b93a40", "#7a2234", "#ffb6a0"],
     fib: ["#cf8670", "#a0544e", "#6a3236", "#ecc0a8"],
-    cir: ["#d2a46a", "#a2704a", "#6a4232", "#f0d0a0"]
+    cir: ["#c99a70", "#9e6a4c", "#674032", "#e8c8a8"]
   };
   function liverDefs(k) {
     var s = "";
@@ -50,7 +50,7 @@
       '<radialGradient id="' + k + '-under" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#1a0814" stop-opacity=".55"/><stop offset="1" stop-color="#1a0814" stop-opacity="0"/></radialGradient>' +
       '<pattern id="' + k + '-lob" width="16" height="14" patternUnits="userSpaceOnUse"><path d="M4 0 L12 0 L16 7 L12 14 L4 14 L0 7 Z" fill="none" stroke="#2a0d18" stroke-opacity=".13" stroke-width="1"/><circle cx="8" cy="7" r="1.1" fill="#2a0d18" fill-opacity=".14"/></pattern>' +
       '<pattern id="' + k + '-spk" width="11" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r="1.1" fill="#ff4a3a" fill-opacity=".75"/><circle cx="7.5" cy="7" r=".9" fill="#ff7a5a" fill-opacity=".7"/><circle cx="9" cy="1.5" r=".6" fill="#fff" fill-opacity=".35"/></pattern>' +
-      '<radialGradient id="' + k + '-nod" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#ecc58a"/><stop offset=".7" stop-color="#b3824f"/><stop offset="1" stop-color="#6e4630"/></radialGradient>' +
+      '<radialGradient id="' + k + '-nod" cx="40%" cy="35%" r="65%"><stop offset="0" stop-color="#f0d0a8"/><stop offset=".75" stop-color="#b98260" stop-opacity=".5"/><stop offset="1" stop-color="#7a4a36" stop-opacity="0"/></radialGradient>' +
       '<radialGradient id="' + k + '-t" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#fff4cc"/><stop offset=".5" stop-color="#ecc070"/><stop offset="1" stop-color="#b47a2c"/></radialGradient>' +
       '<linearGradient id="' + k + '-gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a8e08a"/><stop offset="1" stop-color="#4f8a3c"/></linearGradient>' +
       '<clipPath id="' + k + '-clip"><path d="' + LIVER + '"/></clipPath>';
@@ -90,19 +90,20 @@
       '<path d="M50 120 L 96 104 L 150 120 L 196 96 L 250 108 L 300 80 L 360 86"/><path d="M96 104 L 92 60 M150 120 L 140 176 L 100 200 M196 96 L 206 60 M250 108 L 236 150 L 200 180 M300 80 L 296 120"/>' +
       '<path d="M60 170 L 100 150 L 140 176 M236 150 L 270 130" stroke-opacity=".4"/></g>';
     if (st === "cir") {
+      // 肝硬化：柔和的大結節與淡淡的纖維紋路（避免密集的小圓點造成不適感）
       var n = "";
-      for (var yy = 36; yy < 236; yy += 19) for (var xx = 40 + ((yy / 19) % 2) * 9; xx < 392; xx += 19) {
-        var r = 9 + ((xx * 7 + yy * 3) % 5) * .6;
-        n += '<circle cx="' + xx + '" cy="' + yy + '" r="' + r.toFixed(1) + '" fill="url(#' + k + '-nod)" stroke="#5a3424" stroke-opacity=".55" stroke-width="1.2"/>';
+      for (var yy = 52; yy < 236; yy += 34) for (var xx = 56 + ((yy / 34) % 2) * 17; xx < 392; xx += 34) {
+        var r = 15 + ((xx * 7 + yy * 3) % 5);
+        n += '<circle cx="' + (xx + ((xx * yy) % 7) - 3) + '" cy="' + (yy + ((xx + yy) % 5) - 2) + '" r="' + r + '" fill="url(#' + k + '-nod)" fill-opacity=".38"/>';
       }
-      s += n;
+      s += n + '<g fill="none" stroke="#f3dcc0" stroke-opacity=".28" stroke-width="1.6" stroke-linecap="round"><path d="M50 120 L 96 104 L 150 120 L 196 96 L 250 108 L 300 80 L 360 86"/><path d="M96 104 L 92 60 M150 120 L 140 176 L 100 200 M196 96 L 206 60 M250 108 L 236 150 L 200 180 M300 80 L 296 120"/></g>';
     }
     s += '<path d="' + LIVER + '" fill="url(#' + k + '-shine)"/><path d="' + LIVER + '" fill="url(#' + k + '-under)"/>';
     (o.tumors || []).forEach(function (t) { s += tumor(k, t[0], t[1], t[2], o.feed); });
     s += "</g>";
     // 鐮狀韌帶、邊緣
     s += '<path d="M262 30 C 258 70 262 110 276 136" fill="none" stroke="#3a1420" stroke-opacity=".45" stroke-width="2"/>';
-    if (st === "cir") s += '<path d="' + LIVER + '" fill="none" stroke="' + c[1] + '" stroke-width="11" stroke-dasharray=".1 15" stroke-linecap="round"/>';
+    if (st === "cir") s += '<path d="' + LIVER + '" fill="none" stroke="' + c[1] + '" stroke-width="6" stroke-dasharray=".1 24" stroke-linecap="round"/>';
     s += '<path d="' + LIVER + '" fill="none" stroke="' + c[3] + '" stroke-width="1.8" stroke-opacity=".9"/>';
     s += '<path d="M78 58 C 130 38 210 36 290 50" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="6" stroke-linecap="round"/>';
     return s;

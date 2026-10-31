@@ -55,7 +55,7 @@ window.Widgets = (function () {
     var V = src || VIDS;
     return '<div class="vgrid">' + eps.filter(function (n) { return V[n]; }).map(function (n) {
       var v = V[n], url = "https://www.youtube.com/watch?v=" + v.id;
-      return '<a class="vcard" href="' + url + '" target="_blank" rel="noopener" data-yt="' + v.id + '" data-n="' + n + '" data-t="' + v.t.replace(/"/g, "&quot;") + '"><span class="vc-art" aria-hidden="true"><i></i><b>' + n + '</b></span>' +
+      return '<a class="vcard" href="' + url + '" target="_blank" rel="noopener" data-yt="' + v.id + '" data-n="' + n + '" data-t="' + v.t.replace(/"/g, "&quot;") + '"><span class="vc-art" aria-hidden="true">' + (pm ? "" : '<img src="https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">') + '<i></i><b>' + n + '</b></span>' +
         '<span class="vc-txt"><small>第 ' + n + ' 集</small><span class="vc-t">' + v.t + "</span>" +
         (pm ? '<span class="vc-u">youtu.be/' + v.id + "</span>" : '<span class="vc-go">' + (EMBED ? "點一下直接播放 ▶" : "在 YouTube 觀看 ↗") + "</span>") + "</span></a>";
     }).join("") + "</div>";
@@ -167,7 +167,7 @@ window.Widgets = (function () {
   W.rttech = function (b, pm) {
     var r = function (x) {
       var cal = ""; for (var i = 0; i < x.n; i++) cal += "<i></i>";
-      return (pm ? "" : '<div class="fig mini-fig">' + F.rtTech(x.k) + "</div>") +
+      return (pm ? "" : '<div class="fig mini-fig">' + F.rtTech(x.k, b.site) + "</div>") +
         "<h4>" + x.t + "</h4>" +
         '<div class="rt-cal"><span class="rt-cal-l">治療次數</span><span class="rt-dots' + (x.n > 12 ? " many" : "") + '">' + cal + '</span><span class="rt-cal-t">' + x.sessions + "</span></div>" +
         '<dl class="rt-dl"><dt>劑量形狀</dt><dd>' + x.shape + "</dd><dt>適合情況</dt><dd>" + x.fit + "</dd><dt>健保</dt><dd>" + x.nhi + "</dd></dl>";
