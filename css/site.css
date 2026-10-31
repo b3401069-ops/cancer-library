@@ -848,3 +848,16 @@ body.printview .panel { break-inside: avoid; }
 @media (max-width: 760px) { .lstage { grid-template-columns: 1fr; } .ls-f { grid-template-columns: 1fr; } }
 .lv-risks { align-items: flex-start; } .lv-risks .lbl { padding-top: 2px; }
 .ls-btns button { background: var(--panel); border: 1px solid var(--line); color: var(--ink); box-shadow: none; } .ls-btns button:hover { border-color: var(--gold); } .ls-h { font-size: .95em !important; }
+/* 肝硬化警訊全身圖 */
+.bm-fig.bm-wide { position: relative; }
+.bm-fig.bm-wide svg { max-width: 340px !important; }
+.cirr-fig .bm-lbl rect { transition: fill .3s; }
+.cirr-fig .bm-spot.on .bm-lbl rect { fill: #e2604e; stroke: #ffd0c4; }
+.cirr-fig .bm-spot.on .bm-lbl text { fill: #fff; }
+.cirr-fig .bm-spot:hover .bm-lbl rect { fill: #3a4382; }
+.bm-tap { position: absolute; right: 12%; top: 20%; padding: 6px 12px; border-radius: 99px; background: #f0cf86; color: #141a46; font-weight: 700; font-size: .9em; box-shadow: 0 6px 18px rgba(0,0,0,.3); animation: bmtap 1.4s ease-in-out infinite; pointer-events: none; }
+@keyframes bmtap { 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .bm-tap { animation: none; } }
+.bodymap:has(.bm-wide) { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.bm-fig.bm-wide svg { max-width: 460px !important; }
+@media (max-width: 760px) { .bm-fig.bm-wide svg { max-width: 100% !important; } }

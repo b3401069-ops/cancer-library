@@ -198,18 +198,19 @@ window.Widgets = (function () {
     };
     if (pm) return staticList(b.items, r);
     var w = el("div", "bodymap");
-    var fig = el("div", "fig bm-fig"); fig.innerHTML = F.body(b.items, b.plain) + '<p class="bm-hint">點身上發光的地方</p>';
+    var fig = el("div", "fig bm-fig" + (b.fig ? " bm-wide" : "")); fig.innerHTML = (b.fig && F[b.fig] ? F[b.fig](b.items) : F.body(b.items, b.plain)) + '<p class="bm-hint">' + (b.fig ? "點身上的標籤，看看每個警訊" : "點身上發光的地方") + "</p>" + (b.fig ? '<span class="bm-tap" aria-hidden="true">👆 點點看</span>' : "");
     var side = el("div", "bm-side");
     var chips = el("div", "bm-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "選擇身體部位");
     var panel = el("div", "panel bm-panel"); panel.setAttribute("aria-live", "polite");
     var btns = b.items.map(function (x, i) {
-      var c = el("button", "bm-chip", x.t); c.type = "button"; c.addEventListener("click", function () { pick(i); }); chips.appendChild(c); return c;
+      var c = el("button", "bm-chip", x.t); c.type = "button"; c.addEventListener("click", function () { pick(i, true); }); chips.appendChild(c); return c;
     });
     var spots = fig.querySelectorAll(".bm-spot");
     spots.forEach(function (sp) {
-      sp.addEventListener("click", function () { b.items.forEach(function (x, i) { if (x.id === sp.dataset.id) pick(i); }); });
+      sp.addEventListener("click", function () { b.items.forEach(function (x, i) { if (x.id === sp.dataset.id) pick(i, true); }); });
     });
-    function pick(i) {
+    function pick(i, user) {
+      if (user) { var tp = fig.querySelector(".bm-tap"); if (tp) tp.remove(); }
       btns.forEach(function (c, j) { c.setAttribute("aria-pressed", j === i ? "true" : "false"); });
       spots.forEach(function (sp) { sp.classList.toggle("on", sp.dataset.id === b.items[i].id); });
       panel.classList.remove("swap"); void panel.offsetWidth; panel.classList.add("swap"); panel.innerHTML = r(b.items[i]);
@@ -358,9 +359,9 @@ window.Widgets = (function () {
     var hi = b.hi || 0;
     w.innerHTML = (b.title ? '<div class="cmp-title">' + (b.badge ? '<span class="cmp-badge">' + b.badge + "</span>" : "") + "<b>" + b.title + "</b></div>" : "") +
       '<div class="cmp-grid" style="--cols:' + b.cols.length + '"><span class="cmp-h"></span>' +
-      b.cols.map(function (c, i) { return '<span class="cmp-h' + (i === hi ? " hi" : "") + '">' + c + "</span>"; }).join("") +
+      b.cols.map(function (c, i) { return '<span class="cmp-h' + (i === hi || hi === "all" ? " hi" : "") + '">' + c + "</span>"; }).join("") +
       b.rows.map(function (r) {
-        return '<span class="cmp-l">' + r[0] + "</span>" + r.slice(1).map(function (c, i) { return '<span class="cmp-c' + (i === hi ? " hi" : "") + '" data-col="' + b.cols[i] + '">' + c + "</span>"; }).join("");
+        return '<span class="cmp-l">' + r[0] + "</span>" + r.slice(1).map(function (c, i) { return '<span class="cmp-c' + (i === hi || hi === "all" ? " hi" : "") + '" data-col="' + b.cols[i] + '">' + c + "</span>"; }).join("");
       }).join("") + "</div>" + (b.note ? '<p class="cmp-note">' + b.note + "</p>" : "");
     return w;
   };
