@@ -3,6 +3,7 @@
 window.TREATMENTS = [
   { id: "tx-surgery-lung", name: "肺部手術", en: "Lung Surgery", color: "#4f78b0", icon: "scalpel", short: "胸腔鏡切除與術後照顧", cancers: ["lung"], ready: true },
   { id: "tx-surgery-colorectal", name: "大腸直腸手術", en: "Colorectal Surgery", color: "#5b8a52", icon: "scalpel", short: "切除範圍、住院與造口照顧", cancers: ["colorectal"], ready: true },
+  { id: "tx-liver-local", name: "肝癌局部治療", en: "Liver-directed Therapy", color: "#a8553a", icon: "liver", short: "手術、移植、電燒、栓塞", cancers: ["liver"], ready: true },
   { id: "tx-radiation", name: "放射治療", en: "Radiotherapy", color: "#c08a2e", icon: "beam", short: "定位、每日治療與皮膚照顧", cancers: "all", ready: true },
   { id: "tx-chemo", name: "化學治療", en: "Chemotherapy", color: "#a8553a", icon: "drip", short: "療程節奏與副作用照顧", cancers: "all", ready: true },
   { id: "tx-targeted", name: "標靶治療", en: "Targeted Therapy", color: "#2f8a86", icon: "pill", short: "基因檢測、用藥與抗藥性", cancers: "all", ready: true },

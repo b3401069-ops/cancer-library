@@ -12,7 +12,7 @@
 | js/lobby.js | 3D 書館（Three.js r128，放在 vendor/three.min.js，自行託管不經外部 CDN） | 只在調整動畫或風格時 |
 | js/app.js | 切換頁面、文章排版、閱讀進度、備援書架、字體大小、列印版 | 調整文章版面時 |
 | js/figures.js | 動畫圖解（SVG）與小圖示，所有癌別共用 | 新增圖解或圖示時 |
-| js/figures-<id>.js | 某癌別專屬的圖解（目前有 figures-colorectal.js：colon、polyp、crcStage、colonSeg、stoma、egfrRas） | 該癌別需要專屬圖解時 |
+| js/figures-<id>.js | 某癌別專屬的圖解（figures-colorectal.js：colon、polyp、crcStage、colonSeg、stoma、egfrRas；figures-liver.js：liver、hepProg、liverMini、liverLocal〔resect、tx、ablate、tace、y90〕） | 該癌別需要專屬圖解時 |
 | js/widgets.js | 互動工具：篩檢計算、檢查旅程、分期地圖、治療機轉、紅黃綠燈等 | 新增互動類型時 |
 | data/site.js | 醫院名稱與癌症資源中心（服務項目、個管電話與分機、LINE、地點與路線、服務時間），所有頁面共用；紅黃綠燈的黃燈也會帶出個管電話 | 資源中心資訊變更時 |
 | css/site.css | 全站樣式（書館、文章、圖解夜空石板、列印版、手機） | 調整視覺時 |
@@ -25,7 +25,7 @@
 4. 內容經醫師審核後，ready 改為 true，status 改為空字串或刪除，填上 reviewer 與 updated。
 
 ## 治療小冊
-- 目前有：肺部手術、大腸直腸手術（含造口照顧）、放射治療、化學治療、標靶治療、免疫治療。藥物只寫類別，不寫藥名；每本都有「健保給付規定」一章。
+- 目前有：肺部手術、大腸直腸手術（含造口照顧）、肝癌局部治療（手術、移植、電燒微波、栓塞、釔90）、放射治療、化學治療、標靶治療、免疫治療。藥物只寫類別，不寫藥名；每本都有「健保給付規定」一章。
 - 小冊以網址 #tx-xxx 開啟；從某癌別文章點進去時，左上角返回鍵會回到該癌別。
 - 癌別文章最後和第 4 章會自動列出適用的小冊（依 treatments.js 的 cancers 欄位）。
 - 小冊可用 `videosFrom: "lung"` 借用某癌別的影片清單；新癌別有自己的影片時，在小冊裡加對應的 videos 區塊。
@@ -39,7 +39,7 @@
 - 基本：p、h3（章內小標）、list、callout（level: info / danger）、table、steps、faq、video、sources
 - 動畫圖解：figure，id 可用 breathe（呼吸與肺泡氣體交換）、cells（細胞分裂）、genes（標靶阻斷生長訊號）、plate（國健署我的餐盤）；治療動畫用 mech:surgery、mech:radiation、mech:chemo、mech:immuno
 - 互動工具（js/widgets.js）：tabs、risks、symptoms、screening（肺癌篩檢資格）、journey（檢查旅程）、tnm、stagemap（分期地圖，目前為肺部）、paths（治療路徑）、mechanisms（治療機轉動畫：surgery、radiation、chemo、targeted、immuno）、checklist（看診問題，勾選存在使用者自己的瀏覽器）、videos（分集影片卡）、booklets（治療小冊入口）、cycle（化療 21 天週期）、resections（手術切除範圍動畫）、approaches（手術方式）、rttech（放射治療技術比較）、combos（免疫治療合併方式）、bodymap（全身圖點選看免疫副作用，熱點座標 x/y 以 220×440 人形為準）、quiz（小測驗，a 為正確選項的序號，從 0 開始）、resource（本院癌症資源中心）、triage（紅黃綠燈）、sidefx（依治療看副作用）、quit（戒菸時間軸）、breathe（噘嘴呼吸練習，含吸氣、吹蠟燭動畫）
-- 共用工具的參數：stagemap 用 `fig` 指定分期圖（肺癌預設、大腸直腸用 crcStage）；resections 用 `fig` 指定圖解、`label` 選單名稱、`dl` 額外欄位（大腸手術用 colonSeg、造口用 stoma）；mechanisms 每項可用 `fig`、`arg` 換圖；screening 用 `kind: "crc"` 變成大腸癌糞便潛血資格；quiz 用 `topic` 指定完成時的癌別名稱；journey 站數不限。
+- 共用工具的參數：stagemap 用 `fig` 指定分期圖（肺癌預設、大腸直腸用 crcStage）；resections 用 `fig` 指定圖解、`label` 選單名稱、`dl` 額外欄位（大腸手術用 colonSeg、造口用 stoma）；mechanisms 每項可用 `fig`、`arg` 換圖；screening 用 `kind: "crc"` 變成大腸癌糞便潛血資格、`kind: "liver"` 變成 B、C 肝篩檢與肝癌追蹤建議；liverstage 是肝癌分期互動（腫瘤狀況 × 肝功能，map 以兩個 k 組合查詢，可用 * 萬用）；bodymap 加 `plain: true` 不畫器官；區塊加 `except: ["癌別 id"]` 可在從該癌別點進小冊時隱藏；小冊可用 `factsBy: { 癌別: [...] }` 換開頭重點數字；mechanisms 每項可加 `extra`（例如對照卡 compare）只在該分頁顯示；quiz 用 `topic` 指定完成時的癌別名稱；journey 站數不限。
 - 其他癌別若需要專屬圖解（例如大腸、乳房分期圖），在 js/figures.js 新增，再於文章引用。
 
 ## 導覽

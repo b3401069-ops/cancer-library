@@ -198,7 +198,7 @@ window.Widgets = (function () {
     };
     if (pm) return staticList(b.items, r);
     var w = el("div", "bodymap");
-    var fig = el("div", "fig bm-fig"); fig.innerHTML = F.body(b.items) + '<p class="bm-hint">點身上發光的地方</p>';
+    var fig = el("div", "fig bm-fig"); fig.innerHTML = F.body(b.items, b.plain) + '<p class="bm-hint">點身上發光的地方</p>';
     var side = el("div", "bm-side");
     var chips = el("div", "bm-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "選擇身體部位");
     var panel = el("div", "panel bm-panel"); panel.setAttribute("aria-live", "polite");
@@ -298,6 +298,7 @@ window.Widgets = (function () {
   W.screening = function (b, pm) {
     if (pm) return el("div");
     if (b.kind === "crc") return crcScreen();
+    if (b.kind === "liver") return liverScreen();
     var w = el("form", "tool screen-tool"); w.setAttribute("aria-label", "肺癌篩檢資格檢查");
     w.innerHTML =
       '<div class="row"><span class="lbl">性別</span><div class="seg2" role="radiogroup" aria-label="性別">' +
@@ -447,6 +448,73 @@ window.Widgets = (function () {
     paint();
     w.insertAdjacentHTML("beforeend", '<p class="ex-note">中等強度 1 分鐘算 1 分、費力 1 分鐘算 2 分，輕鬆的活動不計入。紀錄只存在你自己的手機或電腦裡。正在化療、剛開完刀，或有心臟病、骨頭轉移的人，開始新的運動前請先問醫師。</p>');
     return w;
+  };
+
+  /* ---------- 肝癌：B、C 肝篩檢資格與追蹤建議 ---------- */
+  function liverScreen() {
+    var w = el("form", "tool screen-tool"); w.setAttribute("aria-label", "B、C 型肝炎篩檢與肝癌追蹤建議");
+    var risks = [["hb", "B 型肝炎帶原"], ["hc", "C 型肝炎（正在感染，或曾經感染已治癒）"], ["ci", "醫師說過我有肝硬化"], ["fh", "父母、兄弟姊妹或子女得過肝癌"], ["al", "長期喝酒，或有脂肪肝"]];
+    w.innerHTML =
+      '<div class="row"><label class="lbl" for="lv-age">年齡</label><div class="num"><button type="button" data-d="-1" data-t="lv-age" aria-label="年齡減一">−</button><input id="lv-age" type="number" inputmode="numeric" min="18" max="100" value="50"><button type="button" data-d="1" data-t="lv-age" aria-label="年齡加一">＋</button><span>歲</span></div></div>' +
+      '<div class="row"><span class="lbl">身分</span><label class="tg"><input type="checkbox" id="lv-ab"><span>原住民</span></label></div>' +
+      '<div class="row lv-risks"><span class="lbl">我的情況</span><div class="lv-chk">' + risks.map(function (r) { return '<label class="tg"><input type="checkbox" id="lv-' + r[0] + '"><span>' + r[1] + "</span></label>"; }).join("") + "</div></div>" +
+      '<div class="result" aria-live="polite"></div><div class="result lv-follow" aria-live="polite"></div>';
+    var res = w.querySelectorAll(".result");
+    function on(id) { return w.querySelector("#lv-" + id).checked; }
+    function calc() {
+      var age = parseFloat(w.querySelector("#lv-age").value) || 0, lo = on("ab") ? 40 : 45, ok = age >= lo && age <= 79;
+      res[0].className = "result " + (ok ? "yes" : "no");
+      res[0].innerHTML = ok
+        ? '<div class="res-ico">✓</div><div><b>你符合公費 B、C 型肝炎篩檢</b><span>' + lo + "–79 歲" + (on("ab") ? "（原住民）" : "") + "，一生一次免費抽血檢查，不用空腹，可以在成人健康檢查時一起做。已經做過、知道結果的人不需要再做。</span></div>"
+        : '<div class="res-ico">i</div><div><b>不在公費 B、C 肝篩檢的年齡範圍</b><span>公費篩檢是 45–79 歲（原住民 40–79 歲）一生一次。不知道自己有沒有 B、C 肝的人，仍可以和醫師討論抽血檢查。</span></div>';
+      var f, lvl = "no";
+      if (on("ci")) { f = "<b>肝硬化：每 3–6 個月追蹤一次</b><span>腹部超音波＋抽血驗胎兒蛋白。肝硬化是肝癌風險最高的族群，也要依醫師安排照胃鏡檢查食道靜脈曲張。</span>"; lvl = "hi"; }
+      else if (on("hb") || on("hc")) { f = "<b>B、C 肝：每 6 個月追蹤一次</b><span>腹部超音波＋抽血驗胎兒蛋白。" + (on("hb") ? "B 肝依醫師評估使用抗病毒藥物，健保有給付。" : "") + (on("hc") ? "C 肝可以用口服抗病毒藥物治癒，健保全面給付；治癒後如果已經有肝纖維化或肝硬化，仍要持續追蹤。" : "") + "</span>"; lvl = "hi"; }
+      else if (on("fh") || on("al")) { f = "<b>請和醫師討論追蹤頻率</b><span>" + (on("fh") ? "家族有肝癌，自己也要先確認有沒有 B、C 肝。" : "") + (on("al") ? "戒酒、控制體重與血糖，可以減少肝臟繼續受傷；醫師可能會安排超音波了解肝臟狀況。" : "") + "</span>"; lvl = "mid"; }
+      else f = "<b>目前沒有已知的高風險因素</b><span>如果還不知道自己有沒有 B、C 肝，先完成一次篩檢。少喝酒、維持體重，就是保護肝臟最好的方法。</span>";
+      res[1].className = "result lv-follow " + (lvl === "hi" ? "warn" : lvl === "mid" ? "mid" : "no");
+      res[1].innerHTML = '<div class="res-ico">' + (lvl === "hi" ? "!" : "i") + "</div><div>" + f + "</div>";
+    }
+    w.addEventListener("input", calc); w.addEventListener("change", calc);
+    w.addEventListener("submit", function (e) { e.preventDefault(); });
+    w.addEventListener("click", function (e) {
+      var t = e.target.closest("button[data-d]"); if (!t) return;
+      var inp = w.querySelector("#" + t.dataset.t), n = (parseFloat(inp.value) || 0) + parseFloat(t.dataset.d);
+      inp.value = Math.max(+inp.min, Math.min(+inp.max, n)); calc();
+    });
+    calc(); return w;
+  }
+
+  /* ---------- 肝癌分期互動：腫瘤狀況 × 肝功能 → 期別與常見治療 ----------
+     資料在文章裡：tumors、funcs 兩組選項；map 以「腫瘤 k + 肝功能 k」查詢，可用 * 當萬用字元（例如 "*C"）。 */
+  W.liverstage = function (b, pm) {
+    function find(tk, fk) { return b.map[tk + fk] || b.map["*" + fk] || b.map[tk + "*"]; }
+    function result(r) {
+      return '<div class="ls-stage" style="--sc:' + (r.color || "#e8c77f") + '"><small>' + (r.code || "") + "</small><b>" + r.stage + "</b></div>" +
+        '<h4 class="ls-h">常見的治療方向</h4><ul class="ls-tx">' + r.tx.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
+        (r.note ? '<p class="ls-note">' + r.note + "</p>" : "") + (r.book && !pm ? bookLink(r.book) : "");
+    }
+    if (pm) return staticList(b.tumors.map(function (t) { return t; }), function (t) {
+      return "<h4>" + t.t + "（肝功能良好）</h4>" + result(find(t.k, "A"));
+    });
+    var w = el("div", "tool lstage"), tk = b.tumors[0].k, fk = b.funcs[0].k;
+    w.innerHTML = '<div class="ls-fig fig"></div><div class="ls-side">' +
+      '<div class="ls-q"><span class="ls-l">① 腫瘤狀況</span><div class="ls-btns ls-t" role="radiogroup" aria-label="腫瘤狀況">' + b.tumors.map(function (t) { return '<button type="button" role="radio" data-k="' + t.k + '">' + t.t + "</button>"; }).join("") + "</div></div>" +
+      '<div class="ls-q"><span class="ls-l">② 肝功能</span><div class="ls-btns ls-f" role="radiogroup" aria-label="肝功能">' + b.funcs.map(function (f) { return '<button type="button" role="radio" data-k="' + f.k + '"><b>' + f.t + "</b><small>" + f.d + "</small></button>"; }).join("") + "</div></div>" +
+      '<div class="panel ls-res" aria-live="polite"></div></div>';
+    var fig = w.querySelector(".ls-fig"), res = w.querySelector(".ls-res");
+    function upd() {
+      w.querySelectorAll(".ls-t button").forEach(function (x) { x.setAttribute("aria-checked", x.dataset.k === tk ? "true" : "false"); });
+      w.querySelectorAll(".ls-f button").forEach(function (x) { x.setAttribute("aria-checked", x.dataset.k === fk ? "true" : "false"); });
+      fig.innerHTML = F.liverMini(tk, fk);
+      res.classList.remove("swap"); void res.offsetWidth; res.classList.add("swap");
+      res.innerHTML = result(find(tk, fk));
+    }
+    w.addEventListener("click", function (e) {
+      var x = e.target.closest(".ls-btns button"); if (!x) return;
+      if (x.closest(".ls-t")) tk = x.dataset.k; else fk = x.dataset.k; upd();
+    });
+    upd(); return w;
   };
 
   /* ---------- 大腸癌篩檢資格（糞便潛血檢查） ---------- */

@@ -640,7 +640,7 @@ window.Figures = (function () {
 
   /* ---------- 全身圖（免疫副作用） ----------
      正面人形，器官淡淡畫在身體裡；hot 為可點的熱點 [{id, x, y, t}]，由 widgets.js 處理點選。 */
-  function bodyMap(hot) {
+  function bodyMap(hot, plain) {
     var SK = "#3a4296", ED = "#7f8ad6";
     var organs =
       '<ellipse cx="110" cy="40" rx="9" ry="6" fill="#c9a36b" opacity=".55"/>' + // 腦下垂體
@@ -662,7 +662,7 @@ window.Figures = (function () {
     return svg("0 0 220 440", "人體全身圖，點選身體部位查看免疫治療可能的副作用",
       // 身體輪廓
       '<path d="M110 8 C 92 8 82 22 82 40 C 82 58 92 70 100 74 L 98 86 C 74 90 56 98 50 116 L 36 214 C 34 232 30 252 26 266 C 24 274 32 278 36 270 L 52 222 L 64 150 L 66 270 L 68 420 C 68 430 92 430 92 420 L 100 300 C 104 292 116 292 120 300 L 128 420 C 128 430 152 430 152 420 L 154 270 L 156 150 L 168 222 L 184 270 C 188 278 196 274 194 266 C 190 252 186 232 184 214 L 170 116 C 164 98 146 90 122 86 L 120 74 C 128 70 138 58 138 40 C 138 22 128 8 110 8 Z" fill="' + SK + '" stroke="' + ED + '" stroke-width="1.6"/>' +
-      organs + spots, "body-fig");
+      (plain ? "" : organs) + spots, "body-fig");
   }
 
   /* ---------- 癌症資源中心路線圖（依本院單張重畫） ---------- */
@@ -799,6 +799,9 @@ window.Figures = (function () {
     scope: '<rect x="2" y="3" width="5" height="6" rx="1"/><path d="M7 6h3a3 3 0 0 1 3 3v6a3 3 0 0 0 3 3h4"/><circle cx="21" cy="18" r="1.2"/>',
     stoma: '<path d="M6 6c-1 5 0 10 2 13 2 2 6 2 8 0 2-3 3-8 2-13"/><circle cx="12" cy="9" r="2.5"/><path d="M6 6h12"/>',
     tube: '<path d="M9 3h6M10 3v14a2 2 0 0 0 4 0V3"/><path d="M10 11h4"/>',
+    virus: '<circle cx="12" cy="12" r="5"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="3" r="1"/><circle cx="12" cy="21" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="21" cy="12" r="1"/>',
+    eye: '<path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    thermo: '<path d="M10 4a2 2 0 0 1 4 0v10a4 4 0 1 1-4 0z"/><path d="M12 9v6"/>',
     run: '<circle cx="14" cy="4" r="2"/><path d="M9 21l3-6 3 2v5M12 15l-1-6 4 1 3 3M11 9l-4 2-1 3"/>'
   };
   function icon(name, size) {

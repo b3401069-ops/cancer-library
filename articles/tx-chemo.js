@@ -128,6 +128,8 @@ window.ARTICLES["tx-chemo"] = {
         { type: "h3", text: "打藥後的居家安全" },
         { type: "p", text: "打藥後 48 小時內，部分藥物會從尿液、糞便、嘔吐物排出。上廁所後蓋上馬桶蓋沖水兩次；處理排泄物或嘔吐物時戴手套。家人不需要和你隔離，可以正常擁抱、一起吃飯。" },
         { type: "videos", only: "lung", tag: "肺癌", title: "肺癌病人的化療影片", eps: ["10"] },
+        { type: "callout", only: "liver", level: "info", title: "肝癌和化學治療", text: "<b>肝細胞癌很少使用傳統的全身化學治療</b>，晚期多用免疫治療與標靶藥物。部分醫院會使用<b>肝動脈灌注化療</b>：在肝動脈放置導管，持續把化療藥直接送進肝臟，通常需要住院數天。<b>肝內膽管癌</b>則不同，常用化學治療合併免疫治療。" },
+        { type: "videos", only: "liver", from: "liver", tag: "肝癌", title: "肝內膽管癌的治療影片", eps: ["16"] },
         { type: "h3", only: "colorectal", text: "大腸直腸癌常用化療的特別提醒" },
         { type: "list", only: "colorectal", items: [
           "<b>鉑金類：怕冷</b>：打藥後幾天內，碰到冷水、冰的東西或喝冰飲，手指、喉嚨可能刺麻或緊緊的。喝溫的、戴手套拿冷的東西、冬天注意保暖。",

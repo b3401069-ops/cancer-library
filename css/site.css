@@ -820,3 +820,31 @@ body.printview .panel { break-inside: avoid; }
 .yt-modal { z-index: 1000; }
 .yt-bar .btn-s { background: #1b2160; color: #eef0fb; border: 1px solid #3a4382; box-shadow: none; }
 .yt-bar .btn-s:hover { border-color: #e8c77f; }
+/* 肝癌：篩檢與追蹤 */
+.lv-chk { display: grid; gap: 6px; }
+.result.lv-follow { margin-top: 8px; }
+.result.warn { background: color-mix(in srgb, #e8a040 14%, var(--panel)); border: 1px solid #e8a040; }
+.result.warn .res-ico { background: #e8a040; color: #fff; }
+.result.mid { background: var(--info-bg); }
+/* 肝癌分期互動 */
+.lstage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; align-items: start; }
+.ls-fig { padding: 10px; }
+.ls-q { margin-bottom: 12px; }
+.ls-l { display: block; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+.ls-btns { display: grid; gap: 6px; }
+.ls-t { grid-template-columns: 1fr 1fr; }
+.ls-f { grid-template-columns: repeat(3, 1fr); }
+.ls-btns button { text-align: left; padding: 8px 10px; font-size: .9em; line-height: 1.45; border-radius: 12px; }
+.ls-btns button small { display: block; color: var(--muted); font-size: .82em; margin-top: 2px; }
+.ls-btns button[aria-checked="true"] { background: var(--accent); color: var(--star); border-color: var(--accent); }
+.ls-btns button[aria-checked="true"] small { color: color-mix(in srgb, var(--star) 75%, transparent); }
+.ls-stage { display: flex; align-items: baseline; gap: 10px; padding: 8px 12px; border-radius: 12px; background: color-mix(in srgb, var(--sc) 18%, var(--panel)); border-left: 6px solid var(--sc); }
+.ls-stage small { font-weight: 700; color: var(--muted); }
+.ls-stage b { font-size: 1.15em; }
+.ls-h { margin: 12px 0 4px; font-size: .95em; color: var(--gold); }
+.ls-tx { margin: 0; padding-left: 1.2em; }
+.ls-tx li { margin: 3px 0; }
+.ls-note { margin: 10px 0 0; font-size: .9em; color: var(--muted); }
+@media (max-width: 760px) { .lstage { grid-template-columns: 1fr; } .ls-f { grid-template-columns: 1fr; } }
+.lv-risks { align-items: flex-start; } .lv-risks .lbl { padding-top: 2px; }
+.ls-btns button { background: var(--panel); border: 1px solid var(--line); color: var(--ink); box-shadow: none; } .ls-btns button:hover { border-color: var(--gold); } .ls-h { font-size: .95em !important; }
