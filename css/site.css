@@ -874,3 +874,6 @@ body.printview .panel { break-inside: avoid; }
 body.printview .vcard { grid-template-columns: 64px 1fr; }
 body.printview .vc-art { width: 64px; height: 64px; }
 .vgrid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+.vid-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.vid-art:has(.vid-thumb) .vid-stack { display: none; }
+.vid-art .vid-play { z-index: 1; }

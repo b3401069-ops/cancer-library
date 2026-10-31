@@ -350,7 +350,7 @@ window.ARTICLES.colorectal = {
       id: "video", title: "衛教影片", emblem: "play",
       intro: "用影片再複習一次，也方便分享給家人。",
       blocks: [
-        { type: "video", title: "大腸直腸癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道影片，從篩檢陽性、確診、手術、造口、藥物治療，到追蹤與長期生活，用病人聽得懂的話一次說清楚。", href: "https://www.youtube.com/watch?v=C-1UeAn_pBc", cta: "從第 1 集開始看" },
+        { type: "video", thumb: "C-1UeAn_pBc", title: "大腸直腸癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道影片，從篩檢陽性、確診、手術、造口、藥物治療，到追蹤與長期生活，用病人聽得懂的話一次說清楚。", href: "https://www.youtube.com/watch?v=C-1UeAn_pBc", cta: "從第 1 集開始看" },
         { type: "videos", groups: [
           { t: "篩檢、確診與檢測", eps: ["01", "02", "10", "14"] },
           { t: "治療怎麼選", eps: ["03", "04", "05", "08", "09"] },

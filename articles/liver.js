@@ -361,7 +361,7 @@ window.ARTICLES.liver = {
       id: "video", title: "衛教影片", emblem: "play",
       intro: "用影片再複習一次，也方便分享給家人。",
       blocks: [
-        { type: "video", title: "肝癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道播放清單，從定期追蹤、確診與分期，到手術、移植、電燒、栓塞、放療、藥物治療，以及肝炎與肝硬化的照顧。", href: "https://www.youtube.com/playlist?list=PLMAP_ZVvY794", cta: "在 YouTube 開啟播放清單" },
+        { type: "video", thumb: "fNFq_s-goQg", title: "肝癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道播放清單，從定期追蹤、確診與分期，到手術、移植、電燒、栓塞、放療、藥物治療，以及肝炎與肝硬化的照顧。", href: "https://www.youtube.com/playlist?list=PLMAP_ZVvY794", cta: "在 YouTube 開啟播放清單" },
         { type: "videos", groups: [
           { t: "認識、追蹤與確診", eps: ["01", "02", "03", "04"] },
           { t: "局部治療", eps: ["05", "06", "07", "08", "09"] },

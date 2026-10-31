@@ -292,7 +292,7 @@ window.ARTICLES.lung = {
       id: "video", title: "衛教影片", emblem: "play",
       intro: "用影片再複習一次，也方便分享給家人。",
       blocks: [
-        { type: "video", title: "肺癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道播放清單，用病人聽得懂的話，說明肺癌的檢查、治療與醫病共享決策。", href: "https://www.youtube.com/playlist?list=PLe0407NSWUJ8", cta: "在 YouTube 開啟播放清單" },
+        { type: "video", thumb: "YV6lOyL1Eiw", title: "肺癌衛教系列（16 支影片）", text: "本院血液腫瘤科醫師製作的 Neo-BOT 頻道播放清單，用病人聽得懂的話，說明肺癌的檢查、治療與醫病共享決策。", href: "https://www.youtube.com/playlist?list=PLe0407NSWUJ8", cta: "在 YouTube 開啟播放清單" },
         { type: "videos", groups: [
           { t: "非小細胞肺癌（第 1–11 集）", eps: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"] },
           { t: "小細胞肺癌（第 12–16 集）", eps: ["12", "13", "14", "15", "16"] }

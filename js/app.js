@@ -55,7 +55,7 @@ window.App = (function () {
       case "steps": return el("ol", "steps", b.items.map(function (s) { return "<li><b>" + s.t + "</b><span>" + s.d + "</span></li>"; }).join(""));
       case "video":
         var a = el("a", "vid"); a.href = b.href; a.target = "_blank"; a.rel = "noopener"; a.style.setProperty("--c", cn.color);
-        a.innerHTML = '<div class="vid-art" aria-hidden="true"><div class="vid-stack"><i></i><i></i><i></i></div><span class="vid-play"></span></div>' +
+        a.innerHTML = '<div class="vid-art" aria-hidden="true">' + (b.thumb && !printMode ? '<img class="vid-thumb" src="https://i.ytimg.com/vi/' + b.thumb + '/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : "") + '<div class="vid-stack"><i></i><i></i><i></i></div><span class="vid-play"></span></div>' +
           '<div class="vid-txt"><b>' + b.title + "</b><span>" + b.text + '</span><span class="vid-go">' + (b.cta || "在 YouTube 觀看") + " ↗</span>" +
           (printMode ? '<span class="vid-url">' + b.href + "</span>" : "") + "</div>";
         return a;
