@@ -931,3 +931,23 @@ body.printview .vc-art { width: 64px; height: 64px; }
 }
 
 .bm-tap { pointer-events: auto; cursor: pointer; }
+
+/* ---------- 背景音樂開關 ---------- */
+.bgm-btn { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.bgm-ico { display: inline-flex; align-items: flex-end; gap: 2px; width: 14px; height: 14px; }
+.bgm-ico i { flex: 1; height: 30%; border-radius: 1px; background: currentColor; opacity: .7; }
+.bgm-btn:not(.on) .bgm-ico i:nth-child(2) { height: 55%; }
+.bgm-btn:not(.on) .bgm-ico i:nth-child(3) { height: 40%; }
+.bgm-btn.on .bgm-ico i { opacity: 1; animation: eq 1.1s ease-in-out infinite alternate; }
+.bgm-btn.on .bgm-ico i:nth-child(2) { animation-delay: -.4s; }
+.bgm-btn.on .bgm-ico i:nth-child(3) { animation-delay: -.8s; }
+@keyframes eq { from { height: 20%; } to { height: 100%; } }
+@media (prefers-reduced-motion: reduce) { .bgm-btn.on .bgm-ico i { animation: none; height: 80%; } }
+#lobby > .bgm-btn { position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 22px); right: max(20px, env(safe-area-inset-right, 0px)); padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(232,199,127,.5); background: rgba(8,20,32,.55); color: var(--star); font-size: 15px; backdrop-filter: blur(6px); }
+#lobby > .bgm-btn.on { background: rgba(232,199,127,.18); box-shadow: 0 0 18px rgba(232,199,127,.35); }
+.bar .bgm-btn { justify-content: center; width: 36px; height: 34px; border: 1px solid var(--line); background: var(--panel); border-radius: 10px; color: var(--muted); }
+.bar .bgm-btn.on { color: var(--accent); border-color: var(--accent); }
+body.printview .bar .bgm-btn { display: none; }
+@media (max-width: 420px) { .bar .bgm-btn { width: 32px; } #lobby > .bgm-btn { padding: 8px 12px; } #lobby > .bgm-btn .bgm-t { display: none; } }
+.bgm-note { font-size: 17px; line-height: 1; }
+.bgm-btn:not(.on) .bgm-ico, .bgm-btn.on .bgm-note { display: none; }

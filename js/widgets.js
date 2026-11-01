@@ -82,6 +82,7 @@ window.Widgets = (function () {
       document.addEventListener("keydown", function (e) { if (e.key === "Escape" && player.classList.contains("on")) closePlayer(); });
     }
     showClip(i); player.classList.add("on"); document.documentElement.classList.add("yt-lock");
+    if (window.Music) Music.duck(true); // 看影片時背景音樂暫停
     player.querySelector(".yt-x").focus();
   }
   function showClip(i) {
@@ -97,6 +98,7 @@ window.Widgets = (function () {
   function closePlayer() {
     player.classList.remove("on"); player.querySelector(".yt-frame").innerHTML = "";
     document.documentElement.classList.remove("yt-lock"); if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (window.Music) Music.duck(false);
   }
   if (EMBED) document.addEventListener("click", function (e) {
     var c = e.target.closest && e.target.closest(".vcard[data-yt]"); if (!c || document.body.classList.contains("printview")) return;

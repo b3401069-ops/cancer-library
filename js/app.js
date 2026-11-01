@@ -83,6 +83,8 @@ window.App = (function () {
     // 癌別專屬版面（js/looks.js、css/looks.css）；小冊與列印版維持原本的星夜書本版面
     var look = !booklet && !printMode && cn.look && window.Looks && Looks.has(cn.look) ? cn.look : "";
     if (look) articleEl.dataset.look = look; else delete articleEl.dataset.look;
+    // 背景音樂：每個癌別版面一首，治療小冊用溫室的旋律（較安靜）
+    if (window.Music) Music.scene(look || "book");
     W.beginRender(id);
     W.setVideos(art.videos || (art.videosFrom && ARTICLES[art.videosFrom] ? ARTICLES[art.videosFrom].videos : []));
 
@@ -105,7 +107,9 @@ window.App = (function () {
     var pv = el("button", "pv", printMode ? "網頁版" : "列印版"); pv.type = "button";
     pv.setAttribute("aria-pressed", printMode ? "true" : "false");
     pv.addEventListener("click", function () { printMode = !printMode; document.body.classList.toggle("printview", printMode); renderArticle(id); window.scrollTo(0, 0); });
-    barIn.append(back, ttl, sizes, pv);
+    barIn.append(back, ttl, sizes);
+    if (window.Music && Music.available) barIn.appendChild(Music.button(true));
+    barIn.appendChild(pv);
     var toc = el("nav", "toc"); toc.setAttribute("aria-label", "章節");
     function goSec(secId) {
       var t = document.getElementById("s-" + secId); if (!t) return;
@@ -257,6 +261,7 @@ window.App = (function () {
     articleEl.hidden = true; lobbyEl.hidden = false; document.body.classList.remove("reading");
     if (printMode) { printMode = false; document.body.classList.remove("printview"); }
     if (has3D) { window.Lobby.reset(); if (shelfEl.hidden) window.Lobby.start(); }
+    if (window.Music) Music.scene("lobby");
   }
   function barH() { var b = articleEl.querySelector(".bar"); return b ? b.getBoundingClientRect().height : 100; }
   function showArticle(id) {
@@ -284,6 +289,9 @@ window.App = (function () {
   $("#closeShelf").addEventListener("click", closeShelf);
   $("#q").addEventListener("input", function (e) { renderShelf(e.target.value); });
   window.addEventListener("hashchange", route);
+
+  // 書館右上角的背景音樂開關
+  if (window.Music && Music.available) lobbyEl.appendChild(Music.button(false));
 
   function boot() {
     has3D = !!(window.THREE && window.Lobby && window.Lobby.init({
