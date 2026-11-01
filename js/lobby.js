@@ -1,4 +1,4 @@
-/* 3D 魔法書館大廳（Three.js r128）
+/* 3D 書館大廳：夜晚的水晶溫室（Three.js r128）
    書本依 window.CANCERS 自動產生；改文章不需要動這個檔案。
    效能分級：full 完整特效 / lite 簡化 / static 改用平面書架（由 app.js 處理）。 */
 window.Lobby = (function () {
@@ -144,57 +144,228 @@ window.Lobby = (function () {
     return group;
   }
 
-  /* ---------- 背景書櫃 ---------- */
-  function makeShelves() {
-    var n = tier === "full" ? 9 : 5, R = 12, spread = 1.5;
-    var wood = new T.MeshStandardMaterial({ color: 0x2a1d24, roughness: .9 });
-    var perCase = tier === "full" ? 70 : 36;
-    var spines = new T.InstancedMesh(new T.BoxGeometry(1, 1, 1), new T.MeshStandardMaterial({ roughness: .8 }), n * perCase);
-    var m = new T.Matrix4(), q = new T.Quaternion(), s = new T.Vector3(), p = new T.Vector3(), col = new T.Color(), idx = 0;
-    var palette = [0x4a5a8c, 0x6b4a5e, 0x3e6b66, 0x7a6a3e, 0x5b4a86, 0x8a5a44, 0x384a6e];
-    for (var i = 0; i < n; i++) {
-      var a = (i - (n - 1) / 2) / ((n - 1) / 2) * spread * .8;
-      var caseG = new T.Group();
-      caseG.position.set(Math.sin(a) * R, 0, -Math.cos(a) * R + 2); caseG.rotation.y = -a;
-      var frame = new T.Mesh(new T.BoxGeometry(3.2, 7, .5), wood); frame.position.set(0, 1.5, -.3); caseG.add(frame);
-      for (var sh = 0; sh < 5; sh++) {
-        var board = new T.Mesh(new T.BoxGeometry(3.2, .08, .8), wood); board.position.set(0, -1.6 + sh * 1.4, 0); caseG.add(board);
-      }
-      scene.add(caseG); caseG.updateMatrixWorld();
-      for (var k = 0; k < perCase && idx < n * perCase; k++) {
-        var shelf = k % 5, slot = Math.floor(k / 5), hh = .7 + Math.random() * .45, ww = .12 + Math.random() * .1;
-        p.set(-1.4 + slot * (2.8 / (perCase / 5)) + Math.random() * .05, -1.56 + shelf * 1.4 + hh / 2, .1).applyMatrix4(caseG.matrixWorld);
-        q.setFromEuler(new T.Euler(0, -a, (Math.random() - .5) * .08));
-        s.set(ww, hh, .55); m.compose(p, q, s); spines.setMatrixAt(idx, m);
-        col.setHex(palette[(Math.random() * palette.length) | 0]).multiplyScalar(.55 + Math.random() * .35);
-        spines.setColorAt(idx, col); idx++;
-      }
+  /* ---------- 水晶溫室 ----------
+     玻璃穹頂（肋架＋淡淡的玻璃）、穹頂外的星空與月亮、從穹頂灑下的月光、
+     四周的大葉植物、垂下的發光藤蔓與花、地面的花環，以及漂浮的螢火。
+     中央的樹（樹幹、枝條、葉、花苞）依書本位置在 layout() 裡重建，書像果實一樣掛在枝頭。 */
+  var DOME = { c: new T.Vector3(0, -2.2, -3), r: 15 };
+  var swayers = [], pulsers = [], tree = null, strands = [], fireflies = [];
+  function softTex(stops) {
+    return canvasTex(64, 64, function (g, w) {
+      var gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      stops.forEach(function (s) { gr.addColorStop(s[0], s[1]); });
+      g.fillStyle = gr; g.fillRect(0, 0, w, w);
+    });
+  }
+  var TEX = {};
+  function texs() {
+    TEX.glow = softTex([[0, "rgba(255,255,255,1)"], [.25, "rgba(255,255,255,.55)"], [1, "rgba(255,255,255,0)"]]);
+    // 花：五片花瓣＋亮心
+    TEX.flower = canvasTex(64, 64, function (g) {
+      g.translate(32, 32);
+      for (var i = 0; i < 5; i++) { g.rotate(Math.PI * 2 / 5); var gr = g.createRadialGradient(0, -12, 0, 0, -12, 13); gr.addColorStop(0, "rgba(255,255,255,.95)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.beginPath(); g.ellipse(0, -12, 8, 13, 0, 0, Math.PI * 2); g.fill(); }
+      var c = g.createRadialGradient(0, 0, 0, 0, 0, 8); c.addColorStop(0, "#fffbe8"); c.addColorStop(1, "rgba(255,240,180,0)"); g.fillStyle = c; g.beginPath(); g.arc(0, 0, 8, 0, Math.PI * 2); g.fill();
+    });
+    // 葉子：深綠漸層，葉脈微微發光
+    TEX.leaf = canvasTex(128, 256, function (g, w, h) {
+      g.beginPath(); g.moveTo(w / 2, 4); g.bezierCurveTo(w * 1.05, h * .3, w * .9, h * .78, w / 2, h - 4); g.bezierCurveTo(w * .1, h * .78, -w * .05, h * .3, w / 2, 4); g.closePath();
+      var gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#2f6b5c"); gr.addColorStop(1, "#123a36"); g.fillStyle = gr; g.fill();
+      g.strokeStyle = "rgba(150,255,210,.55)"; g.lineWidth = 3; g.beginPath(); g.moveTo(w / 2, 10); g.lineTo(w / 2, h - 10); g.stroke();
+      g.lineWidth = 1.6; g.strokeStyle = "rgba(150,255,210,.32)";
+      for (var y = 40; y < h - 30; y += 26) { g.beginPath(); g.moveTo(w / 2, y); g.quadraticCurveTo(w * .75, y - 6, w * .88, y - 20); g.moveTo(w / 2, y); g.quadraticCurveTo(w * .25, y - 6, w * .12, y - 20); g.stroke(); }
+    });
+    // 大葉（龜背芋般的剪影）
+    TEX.bigleaf = canvasTex(256, 256, function (g, w, h) {
+      g.translate(w / 2, h / 2);
+      g.beginPath(); g.ellipse(0, 0, 118, 104, 0, 0, Math.PI * 2);
+      var gr = g.createRadialGradient(-20, -30, 10, 0, 0, 130); gr.addColorStop(0, "#2c6a58"); gr.addColorStop(1, "#0d2a2a"); g.fillStyle = gr; g.fill();
+      g.globalCompositeOperation = "destination-out";
+      for (var i = 0; i < 7; i++) { var a = -Math.PI / 2 + (i - 3) * .42; g.save(); g.rotate(a); g.beginPath(); g.ellipse(84, 0, 34, 7, 0, 0, Math.PI * 2); g.fill(); g.restore(); }
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(-14, 118); g.lineTo(14, 118); g.fill();
+      g.globalCompositeOperation = "source-over";
+      g.strokeStyle = "rgba(140,255,200,.35)"; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 104); g.lineTo(0, -100); g.stroke();
+    });
+    // 月光光束：上亮下淡
+    TEX.beam = canvasTex(64, 256, function (g, w, h) {
+      var gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "rgba(220,235,255,.9)"); gr.addColorStop(1, "rgba(220,235,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      var sx = g.createLinearGradient(0, 0, w, 0); sx.addColorStop(0, "rgba(0,0,0,1)"); sx.addColorStop(.5, "rgba(0,0,0,0)"); sx.addColorStop(1, "rgba(0,0,0,1)");
+      g.globalCompositeOperation = "destination-out"; g.fillStyle = sx; g.fillRect(0, 0, w, h);
+    });
+  }
+  function add(o) { scene.add(o); return o; }
+  function sprite(tex, color, size, opacity, fog) {
+    var s = new T.Sprite(new T.SpriteMaterial({ map: tex, color: color, transparent: true, opacity: opacity, blending: T.AdditiveBlending, depthWrite: false, fog: fog !== false }));
+    s.scale.set(size, size, 1); return s;
+  }
+  var FLOWER = [0xffb3d9, 0x9ff5e0, 0xffe39a, 0xc8b3ff, 0x9fd4ff];
+  function domePoint(az, el, r) { r = r || DOME.r; return new T.Vector3(DOME.c.x + Math.sin(az) * Math.cos(el) * r, DOME.c.y + Math.sin(el) * r * .78, DOME.c.z - Math.cos(az) * Math.cos(el) * r); }
+  function makeGreenhouse() {
+    var full = tier === "full";
+    // 穹頂外的星空
+    var sn = full ? 900 : 350, sp = new Float32Array(sn * 3);
+    for (var i = 0; i < sn; i++) { var az = Math.random() * Math.PI * 2, el = Math.random() * 1.3 + .1, r = 34 + Math.random() * 6; sp[i * 3] = Math.sin(az) * Math.cos(el) * r; sp[i * 3 + 1] = Math.sin(el) * r - 4; sp[i * 3 + 2] = -Math.cos(az) * Math.cos(el) * r - 3; }
+    var sg = new T.BufferGeometry(); sg.setAttribute("position", new T.BufferAttribute(sp, 3));
+    var stars = add(new T.Points(sg, new T.PointsMaterial({ size: .16, map: TEX.glow, color: 0xdfe8ff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, fog: false })));
+    pulsers.push({ m: stars.material, base: .8, amp: .15, sp: .7, ph: 0 });
+    // 月亮與光暈
+    var moon = add(sprite(TEX.glow, 0xf4f8ff, 5, 1, false)); moon.position.set(5, 13, -26);
+    add(sprite(TEX.glow, 0x9fc4ff, 18, .28, false)).position.copy(moon.position);
+    // 穹頂肋架：經線與緯線
+    var ribMat = new T.MeshBasicMaterial({ color: 0xbcd8ff, transparent: true, opacity: .22, fog: false, depthWrite: false });
+    var nMer = 16;
+    for (var m = 0; m < nMer; m++) {
+      var az0 = m / nMer * Math.PI * 2, pts = [];
+      for (var e = 0; e <= 16; e++) pts.push(domePoint(az0, e / 16 * Math.PI / 2));
+      add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 32, .045, 5, false), ribMat));
     }
-    spines.count = idx; scene.add(spines);
+    [.18, .55, .95, 1.3].forEach(function (el) {
+      var pts = []; for (var k = 0; k <= 48; k++) pts.push(domePoint(k / 48 * Math.PI * 2, el));
+      add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts, true), 96, .035, 4, true), ribMat));
+    });
+    // 玻璃：極淡的藍綠色，從裡面看
+    var glass = add(new T.Mesh(new T.SphereGeometry(DOME.r, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), new T.MeshBasicMaterial({ color: 0x5fa8c8, transparent: true, opacity: .025, side: T.BackSide, depthWrite: false, fog: false })));
+    glass.position.copy(DOME.c); glass.scale.y = .78;
+    // 月光光束
+    var beams = full ? 4 : 2;
+    for (var bm = 0; bm < beams; bm++) {
+      var beam = add(new T.Mesh(new T.PlaneGeometry(2.6 + bm * .6, 17), new T.MeshBasicMaterial({ map: TEX.beam, color: 0xcfe3ff, transparent: true, opacity: .1, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide, fog: false })));
+      beam.position.set(-3.5 + bm * 2.6, 4.6, -6 + bm * .8); beam.rotation.z = -.32 + bm * .06;
+      pulsers.push({ m: beam.material, base: .09, amp: .04, sp: .35 + bm * .1, ph: bm * 1.7 });
+    }
+    // 垂下的藤蔓與花
+    var nV = full ? 14 : 7;
+    for (var v = 0; v < nV; v++) {
+      var azv = (v / nV - .5) * 2.6 + (Math.random() - .5) * .2, top = domePoint(azv, .9 + Math.random() * .3, DOME.r - .3);
+      var len = 3 + Math.random() * 4, vp = [];
+      for (var q = 0; q <= 10; q++) { var f = q / 10; vp.push(new T.Vector3(top.x + Math.sin(f * 5 + v) * .25, top.y - f * len, top.z + Math.cos(f * 4 + v) * .2)); }
+      var vine = new T.Group(); vine.position.copy(top);
+      var curve = new T.CatmullRomCurve3(vp.map(function (p) { return p.clone().sub(top); }));
+      vine.add(new T.Mesh(new T.TubeGeometry(curve, 24, .025, 4, false), new T.MeshBasicMaterial({ color: 0x3d8c74 })));
+      for (var fl = 0; fl < 5; fl++) {
+        var fp = curve.getPoint(.2 + fl * .18), sf = sprite(TEX.flower, FLOWER[(v + fl) % FLOWER.length], .45 + Math.random() * .25, .85);
+        sf.position.copy(fp); vine.add(sf); pulsers.push({ m: sf.material, base: .7, amp: .25, sp: 1 + Math.random(), ph: Math.random() * 6 });
+      }
+      add(vine); swayers.push({ o: vine, amp: .05, sp: .5 + Math.random() * .4, ph: Math.random() * 6 });
+    }
+    // 四周的大葉植物
+    var nL = full ? 40 : 18, bigMat = function () { return new T.MeshBasicMaterial({ map: TEX.bigleaf, transparent: true, alphaTest: .05, side: T.DoubleSide, color: 0xffffff }); };
+    for (var l = 0; l < nL; l++) {
+      var azl = (l / nL - .5) * 3.6 + (Math.random() - .5) * .15, rr = 9 + Math.random() * 4;
+      var lf = add(new T.Mesh(new T.PlaneGeometry(1, 1), bigMat()));
+      var sz = 2 + Math.random() * 2.4; lf.scale.set(sz, sz, 1);
+      lf.position.set(Math.sin(azl) * rr, -2.2 + Math.random() * 3.2 + sz * .3, -Math.cos(azl) * rr - 2);
+      lf.rotation.set(-.3 + Math.random() * .4, -azl + (Math.random() - .5) * .8, (Math.random() - .5) * 1.4);
+      lf.material.color.setHSL(.42 + Math.random() * .06, .35, .55 + Math.random() * .2);
+      swayers.push({ o: lf, amp: .03, sp: .4 + Math.random() * .3, ph: Math.random() * 6, rz: lf.rotation.z });
+    }
+    // 地面：苔色地板＋花環
+    var floorTex = canvasTex(256, 256, function (g, w) {
+      var gr = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); gr.addColorStop(0, "#16323a"); gr.addColorStop(.45, "#0a1c24"); gr.addColorStop(1, "#050d14"); g.fillStyle = gr; g.fillRect(0, 0, w, w);
+    });
+    floorTex.encoding = T.sRGBEncoding;
+    var floor = add(new T.Mesh(new T.CircleGeometry(18, 48), new T.MeshBasicMaterial({ map: floorTex })));
+    floor.rotation.x = -Math.PI / 2; floor.position.y = -2.2;
+    var ringTex = canvasTex(512, 512, function (g, w) {
+      g.translate(w / 2, w / 2);
+      g.strokeStyle = "rgba(160,255,215,.5)"; g.lineWidth = 2; [228, 150].forEach(function (r) { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke(); });
+      for (var j = 0; j < 40; j++) { var an = j / 40 * Math.PI * 2; g.save(); g.rotate(an); g.fillStyle = "rgba(120,220,180,.55)"; g.beginPath(); g.ellipse(0, -190, 8, 22, .4, 0, Math.PI * 2); g.fill(); g.restore(); }
+      for (var d = 0; d < 24; d++) { var ad = d / 24 * Math.PI * 2 + .1, gr = g.createRadialGradient(Math.cos(ad) * 190, Math.sin(ad) * 190, 0, Math.cos(ad) * 190, Math.sin(ad) * 190, 14); gr.addColorStop(0, "rgba(255,240,200,.95)"); gr.addColorStop(1, "rgba(255,200,230,0)"); g.fillStyle = gr; g.beginPath(); g.arc(Math.cos(ad) * 190, Math.sin(ad) * 190, 14, 0, Math.PI * 2); g.fill(); }
+    });
+    var ring = add(new T.Mesh(new T.PlaneGeometry(10, 10), new T.MeshBasicMaterial({ map: ringTex, transparent: true, opacity: .3, blending: T.AdditiveBlending, depthWrite: false })));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = -2.18; rings.push(ring);
+    // 地上的發光小花叢
+    var nB = full ? 46 : 20;
+    for (var bb = 0; bb < nB; bb++) {
+      var azb = Math.random() * Math.PI * 2, rb = 5.5 + Math.random() * 6, fb = add(sprite(TEX.flower, FLOWER[bb % FLOWER.length], .35 + Math.random() * .3, .8));
+      fb.position.set(Math.sin(azb) * rb, -2.05 + Math.random() * .3, -Math.cos(azb) * rb - 2);
+      pulsers.push({ m: fb.material, base: .65, amp: .3, sp: .8 + Math.random(), ph: Math.random() * 6 });
+    }
+  }
+  // 螢火：三群不同大小與閃爍節奏
+  function makeParticles() {
+    var groups = tier === "full" ? [[160, .12, 0xd9ff9a], [120, .09, 0xfff0b0], [90, .16, 0x9ff5e0]] : [[90, .14, 0xd9ff9a], [60, .16, 0x9ff5e0]];
+    groups.forEach(function (gp, gi) {
+      var n = gp[0], pos = new Float32Array(n * 3), seed = new Float32Array(n);
+      for (var i = 0; i < n; i++) { pos[i * 3] = (Math.random() - .5) * 20; pos[i * 3 + 1] = -2 + Math.random() * 8; pos[i * 3 + 2] = (Math.random() - .5) * 14 - 2; seed[i] = Math.random() * 100; }
+      var geo = new T.BufferGeometry(); geo.setAttribute("position", new T.BufferAttribute(pos, 3));
+      var pts = add(new T.Points(geo, new T.PointsMaterial({ size: gp[1], map: TEX.glow, transparent: true, depthWrite: false, blending: T.AdditiveBlending, color: gp[2] })));
+      pts.userData.seed = seed; fireflies.push(pts);
+      pulsers.push({ m: pts.material, base: .75, amp: .25, sp: 1.3 + gi * .5, ph: gi * 2 });
+    });
   }
 
-  /* ---------- 地面魔法陣與粒子 ---------- */
-  function makeFloor() {
-    var floor = new T.Mesh(new T.CircleGeometry(16, 48), new T.MeshStandardMaterial({ color: 0x141a40, roughness: 1 }));
-    floor.rotation.x = -Math.PI / 2; floor.position.y = -2.2; scene.add(floor);
-    var runeTex = canvasTex(512, 512, function (g, w) {
-      g.translate(w / 2, w / 2); g.strokeStyle = "rgba(232,199,127,.9)"; g.lineWidth = 3;
-      [230, 200, 120].forEach(function (r) { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke(); });
-      for (var i = 0; i < 6; i++) { var a = i / 6 * Math.PI * 2, b = a + Math.PI * 2 / 3; g.beginPath(); g.moveTo(Math.cos(a) * 200, Math.sin(a) * 200); g.lineTo(Math.cos(b) * 200, Math.sin(b) * 200); g.stroke(); }
-      for (var j = 0; j < 36; j++) { var an = j / 36 * Math.PI * 2; g.beginPath(); g.moveTo(Math.cos(an) * 205, Math.sin(an) * 205); g.lineTo(Math.cos(an) * 225, Math.sin(an) * 225); g.stroke(); }
-    });
-    var circle = new T.Mesh(new T.PlaneGeometry(9, 9), new T.MeshBasicMaterial({ map: runeTex, transparent: true, opacity: .35, blending: T.AdditiveBlending, depthWrite: false }));
-    circle.rotation.x = -Math.PI / 2; circle.position.y = -2.18; scene.add(circle); rings.push(circle);
-  }
-  function makeParticles() {
-    var count = tier === "full" ? 700 : 220, geo = new T.BufferGeometry(), pos = new Float32Array(count * 3), spd = new Float32Array(count);
-    for (var i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - .5) * 22; pos[i * 3 + 1] = -2 + Math.random() * 9; pos[i * 3 + 2] = (Math.random() - .5) * 16 - 2;
-      spd[i] = .15 + Math.random() * .35;
+  /* ---------- 中央的樹：依書本位置長出枝條 ---------- */
+  function tube(points, r, mat) { return new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(points), Math.max(8, points.length * 6), r, 6, false), mat); }
+  function buildTree(portrait) {
+    if (tree) { scene.remove(tree); tree.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); }
+    strands.forEach(function (s) { scene.remove(s.line); s.line.geometry.dispose(); }); strands = [];
+    tree = new T.Group();
+    var bark = new T.MeshStandardMaterial({ color: 0x1c1a28, emissive: 0x0f3a34, emissiveIntensity: .45, roughness: .9 });
+    var twig = new T.MeshStandardMaterial({ color: 0x24263a, emissive: 0x1d6a58, emissiveIntensity: .55, roughness: .85 });
+    var tops = books.map(function (b) { return new T.Vector3(b.position.x, b.userData.baseY + 1.55 * b.scale.x, b.position.z); });
+    var maxY = Math.max.apply(null, tops.map(function (p) { return p.y; }));
+    var tz = portrait ? -1.3 : Math.min.apply(null, tops.map(function (p) { return p.z; })) - 1.6;
+    var trunkTop = new T.Vector3(0, maxY + (portrait ? 1.2 : 2.2), tz);
+    // 樹幹：下粗上細（分三段）
+    var base = new T.Vector3(0, -2.2, tz);
+    var tp = [base, new T.Vector3(.25, -1, tz), new T.Vector3(-.2, (maxY - 2.2) / 2, tz), new T.Vector3(.1, maxY, tz), trunkTop];
+    tree.add(tube(tp.slice(0, 3), .26, bark), tube(tp.slice(2, 4), .18, bark), tube(tp.slice(3), .11, bark));
+    // 樹根
+    for (var r = 0; r < 5; r++) { var a = r / 5 * Math.PI * 2 + .3; tree.add(tube([new T.Vector3(0, -1.6, tz), new T.Vector3(Math.cos(a) * .6, -2.05, tz + Math.sin(a) * .6), new T.Vector3(Math.cos(a) * 1.2, -2.2, tz + Math.sin(a) * 1.2)], .07, bark)); }
+    var leafMat = new T.MeshBasicMaterial({ map: TEX.leaf, transparent: true, alphaTest: .1, side: T.DoubleSide });
+    function leaves(curve, n, size) {
+      for (var i = 0; i < n; i++) {
+        var p = curve.getPoint(.25 + Math.random() * .75), lf = new T.Mesh(new T.PlaneGeometry(size * .5, size), leafMat);
+        lf.position.copy(p).add(new T.Vector3((Math.random() - .5) * .3, (Math.random() - .2) * .3, (Math.random() - .5) * .3));
+        lf.rotation.set(Math.random() * .8 - .4, Math.random() * Math.PI, Math.random() * 2 - 1); tree.add(lf);
+      }
     }
-    geo.setAttribute("position", new T.BufferAttribute(pos, 3));
-    particles = new T.Points(geo, new T.PointsMaterial({ size: tier === "full" ? .11 : .14, map: dotTex(), transparent: true, depthWrite: false, blending: T.AdditiveBlending, color: 0xffe2a0 }));
-    particles.userData.spd = spd; scene.add(particles);
+    function buds(curve, n) {
+      for (var i = 0; i < n; i++) {
+        var sb = sprite(TEX.flower, FLOWER[(Math.random() * FLOWER.length) | 0], .3 + Math.random() * .2, .9);
+        sb.position.copy(curve.getPoint(.3 + Math.random() * .7)); tree.add(sb);
+        pulsers.push({ m: sb.material, base: .7, amp: .3, sp: 1 + Math.random(), ph: Math.random() * 6 });
+      }
+    }
+    var full = tier === "full";
+    // 掛書的枝條
+    tops.forEach(function (hp, i) {
+      var from = new T.Vector3(0, Math.min(hp.y + (portrait ? .5 : 1.1), trunkTop.y - .2), tz);
+      var mid = new T.Vector3((from.x + hp.x) / 2, Math.max(from.y, hp.y) + .45, (from.z + hp.z) / 2);
+      var curve = new T.CatmullRomCurve3([from, mid, hp]);
+      tree.add(new T.Mesh(new T.TubeGeometry(curve, 20, .05, 5, false), twig));
+      leaves(curve, full ? 7 : 4, .5); buds(curve, full ? 2 : 1);
+      // 垂下來的細藤，連到書的上緣（每一格依書的位置更新）
+      var g = new T.BufferGeometry(); g.setAttribute("position", new T.BufferAttribute(new Float32Array(6 * 3), 3));
+      var line = new T.Line(g, new T.LineBasicMaterial({ color: 0xa8ffd8, transparent: true, opacity: .7 }));
+      scene.add(line); strands.push({ line: line, book: books[i], top: hp.clone() });
+      // 枝頭的小葉冠
+      for (var k = 0; k < 3; k++) { var lc = new T.Mesh(new T.PlaneGeometry(.22, .44), leafMat); lc.position.copy(hp).add(new T.Vector3((k - 1) * .16, .12, 0)); lc.rotation.set(0, 0, (k - 1) * .7); tree.add(lc); }
+    });
+    // 樹冠：往上、往外的裝飾枝
+    var nC = full ? 9 : 5;
+    for (var c = 0; c < nC; c++) {
+      var ang = (c / (nC - 1) - .5) * 2.4, len = 1.6 + Math.random() * 1.2;
+      var st = new T.Vector3(0, trunkTop.y - .3 - Math.random() * .6, tz);
+      var en = new T.Vector3(Math.sin(ang) * len * (portrait ? .9 : 1.4), st.y + Math.cos(ang) * len * .8 + .3, tz + (Math.random() - .5) * .8);
+      var cv = new T.CatmullRomCurve3([st, st.clone().lerp(en, .5).add(new T.Vector3(0, .3, 0)), en]);
+      tree.add(new T.Mesh(new T.TubeGeometry(cv, 16, .04, 5, false), twig));
+      leaves(cv, full ? 10 : 5, .55); buds(cv, full ? 3 : 1);
+    }
+    // 樹冠後方的柔光
+    var halo = sprite(TEX.glow, 0x7fe0c0, portrait ? 6 : 9, .12); halo.position.set(0, trunkTop.y - 1, tz - .5); tree.add(halo);
+    scene.add(tree);
+  }
+  function updateStrands(t) {
+    strands.forEach(function (s) {
+      var b = s.book, arr = s.line.geometry.attributes.position.array;
+      var end = new T.Vector3(0, .98, 0); b.localToWorld(end);
+      for (var i = 0; i < 6; i++) {
+        var f = i / 5, x = s.top.x + (end.x - s.top.x) * f, y = s.top.y + (end.y - s.top.y) * f, z = s.top.z + (end.z - s.top.z) * f;
+        arr[i * 3] = x + Math.sin(f * Math.PI) * .04 * Math.sin(t + i); arr[i * 3 + 1] = y; arr[i * 3 + 2] = z;
+      }
+      s.line.geometry.attributes.position.needsUpdate = true;
+    });
   }
 
   /* ---------- 版面：橫向弧形 / 直式兩排 ---------- */
@@ -222,9 +393,12 @@ window.Lobby = (function () {
         b.position.set(Math.sin(a) * R, .25, -Math.cos(a) * R + R * .55);
         b.rotation.y = -a * .9; b.userData.baseY = b.position.y; b.scale.setScalar(1);
       });
-      camera.fov = 45; camBase.set(0, .9, 8.4 + Math.max(0, 1.5 - aspect) * 4); lookAt.set(0, .2, 0);
+      camera.fov = 45; camBase.set(0, 1.1, 8.6 + Math.max(0, 1.5 - aspect) * 4); lookAt.set(0, .55, 0);
     }
     camera.updateProjectionMatrix();
+    // 霧依鏡頭距離調整：手機直式鏡頭拉得比較遠，書才不會被霧蓋住
+    scene.fog.near = camBase.z - 1; scene.fog.far = camBase.z + 18;
+    buildTree(aspect < .9);
   }
 
   /* ---------- 互動 ---------- */
@@ -296,15 +470,17 @@ window.Lobby = (function () {
       ud.glow.material.opacity = .45 + ud.hover * .5 + Math.sin(t * 1.4 + ud.phase) * .06;
       ud.frontMat.emissiveIntensity = .08 + ud.hover * .25;
     });
-    if (particles) {
-      var arr = particles.geometry.attributes.position.array, spd = particles.userData.spd;
-      for (var i = 0; i < spd.length; i++) {
-        arr[i * 3 + 1] += spd[i] * dt * (reduced ? .2 : 1);
-        arr[i * 3] += Math.sin(t * .5 + i) * dt * .05;
-        if (arr[i * 3 + 1] > 7) arr[i * 3 + 1] = -2;
+    fireflies.forEach(function (pts) {
+      var arr = pts.geometry.attributes.position.array, sd = pts.userData.seed, k = reduced ? .2 : 1;
+      for (var i = 0; i < sd.length; i++) {
+        arr[i * 3] += Math.sin(t * .3 + sd[i]) * dt * .25 * k; arr[i * 3 + 1] += (Math.sin(t * .5 + sd[i] * 2) * .12 + .05) * dt * k; arr[i * 3 + 2] += Math.cos(t * .27 + sd[i]) * dt * .2 * k;
+        if (arr[i * 3 + 1] > 6) arr[i * 3 + 1] = -2;
       }
-      particles.geometry.attributes.position.needsUpdate = true;
-    }
+      pts.geometry.attributes.position.needsUpdate = true;
+    });
+    pulsers.forEach(function (p) { p.m.opacity = p.base + Math.sin(t * p.sp + p.ph) * (reduced ? 0 : p.amp); });
+    swayers.forEach(function (w) { if (w.rz != null) w.o.rotation.z = w.rz + Math.sin(t * w.sp + w.ph) * w.amp; else w.o.rotation.z = Math.sin(t * w.sp + w.ph) * w.amp; });
+    updateStrands(t);
     rings.forEach(function (r) { r.rotation.z += dt * .05; });
     if (!busy) {
       camera.position.x += (camBase.x + parallax.x * .5 - camera.position.x) * .04;
@@ -320,7 +496,7 @@ window.Lobby = (function () {
     if (avg > .055 && tier === "lite") { stop(); if (opts.onFallback) opts.onFallback("slow"); }
     else if (avg > .034 && tier === "full") {
       tier = "lite"; renderer.setPixelRatio(1);
-      if (particles) particles.geometry.setDrawRange(0, 220);
+      fireflies.forEach(function (p) { p.geometry.setDrawRange(0, 60); });
       monitorUntil = performance.now() + 2500;
     }
   }
@@ -334,13 +510,14 @@ window.Lobby = (function () {
     catch (e) { return false; }
     renderer.setPixelRatio(tier === "full" ? Math.min(devicePixelRatio || 1, 2) : 1);
     renderer.outputEncoding = T.sRGBEncoding;
-    scene = new T.Scene(); scene.fog = new T.Fog(0x0c1130, 9, 22);
+    scene = new T.Scene(); scene.fog = new T.Fog(new T.Color(0x07121c).convertSRGBToLinear(), 10, 26);
     camera = new T.PerspectiveCamera(45, 1, .1, 60);
     clock = new T.Clock(); raycaster = new T.Raycaster(); pointer = new T.Vector2(9, 9);
-    scene.add(new T.HemisphereLight(0x8890d8, 0x1a1030, .75));
-    var key = new T.PointLight(0xffd99a, 1.3, 30); key.position.set(0, 5, 6); scene.add(key);
-    var rim = new T.PointLight(0x7f8cff, .8, 25); rim.position.set(-6, 3, -4); scene.add(rim);
-    makeFloor(); makeShelves(); makeParticles();
+    scene.add(new T.HemisphereLight(0x9cc8ff, 0x0e2a24, .55));
+    var moonL = new T.DirectionalLight(0xcfe0ff, .55); moonL.position.set(5, 12, -6); scene.add(moonL);
+    var key = new T.PointLight(0xffe2b0, 1.15, 30); key.position.set(0, 4, 7); scene.add(key);
+    var rim = new T.PointLight(0x6fe0c0, .9, 22); rim.position.set(-5, 3, -5); scene.add(rim);
+    texs(); makeGreenhouse(); makeParticles();
     (opts.cancers || []).forEach(function (cn) { var b = makeBook(cn); books.push(b); scene.add(b); });
     layout();
     camera.position.set(camBase.x, camBase.y + 1.2, camBase.z + (reduced ? 0 : 6));

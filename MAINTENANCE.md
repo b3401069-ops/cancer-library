@@ -42,6 +42,15 @@
 - 共用工具的參數：stagemap 用 `fig` 指定分期圖（肺癌預設、大腸直腸用 crcStage）；resections 用 `fig` 指定圖解、`label` 選單名稱、`dl` 額外欄位（大腸手術用 colonSeg、造口用 stoma）；mechanisms 每項可用 `fig`、`arg` 換圖；screening 用 `kind: "crc"` 變成大腸癌糞便潛血資格、`kind: "liver"` 變成 B、C 肝篩檢與肝癌追蹤建議；liverstage 是肝癌分期互動（腫瘤狀況 × 肝功能，map 以兩個 k 組合查詢，可用 * 萬用）；bodymap 加 `plain: true` 不畫器官、`fig: "cirrhosisBody"` 換成專屬人形（熱點旁顯示 short 標籤，side: "left" 放左邊）；`fig: "lymphSystem"` 是淋巴系統全身圖（淋巴液流動動畫＋可點選的部位）；`tags` 可改三列標題、`hint` 改圖下提示、`tap: false` 不顯示「點點看」提示（提示本身點了會打開第一個部位）；compare 的 `hi: "all"` 讓每一欄都強調；區塊加 `except: ["癌別 id"]` 可在從該癌別點進小冊時隱藏；小冊可用 `factsBy: { 癌別: [...] }` 換開頭重點數字；mechanisms 每項可加 `extra`（例如對照卡 compare）只在該分頁顯示；quiz 用 `topic` 指定完成時的癌別名稱；journey 站數不限；cycle 可直接拖動彩色條上的圓圈（原生滑桿保留給鍵盤與讀屏）；mechanisms 在桌機閱讀右側文字時，左側動畫會固定在選單下方；手機上 mechanisms 與 subtypes 的選單是一排左右滑動；paths 可用 `label` 改選單名稱；subtypes 是淋巴癌的亞型探索（每項 t、short、pace 1 慢／2 中／3 快、d、goal、steps、alt、eps、book）；stagemap 用 `fig: "lymphStage"` 時是以橫膈膜為界的淋巴癌分期（4 個期別按鈕）。
 - 其他癌別若需要專屬圖解（例如大腸、乳房分期圖），在 js/figures.js 新增，再於文章引用。
 
+## 版面設計
+- 書館入口（js/lobby.js）：夜晚的水晶溫室。玻璃穹頂、月亮與月光、垂下的發光藤蔓與花、四周大葉植物、地面花環、螢火；中央一棵樹依書本位置長出枝條，書像果實一樣用細藤掛在枝頭（buildTree 在每次排版時重建）。手機直式為兩欄、奇數本時最後一本置中。
+- 癌別專屬版面（js/looks.js＋css/looks.css）：在 data/cancers.js 加 `look`。
+  - breath（肺癌）：呼吸的星光肺葉與氣泡、置中開場、氣泡形狀的重點數字、章節大字編號「01」、圓角卡片；寬螢幕（≥1360px）改用左側章節導覽。
+  - river（大腸直腸癌）：月光河流與燈籠、章節是沿河的「第 n 站」，寬螢幕左側有河道線。
+  - botanical（肝癌）：植物圖鑑，葉脈描繪動畫與飄落的葉子、標本標籤式重點數字、置中章節標題與葉形裝飾、較窄的書頁。
+  - constellation（淋巴癌）：星座網絡，開場右側是可點的章節星圖；偶數章節換成深夜色帶，和白天章節交錯。
+  - 治療小冊與列印版維持原本的星夜書本版面。新增癌別可沿用其中一種，或在 looks.js、looks.css 新增一種。
+
 ## 導覽
 - 從癌別文章點進治療小冊，再按左上角或左下角「回到《肺癌》」，會回到剛才讀到的位置，選單也會停在剛才選的項目。
 - 治療路徑、治療機轉等選單在電腦上會固定在畫面上方；每個面板底部有「上一個／回到選單／下一個」。

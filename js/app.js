@@ -80,6 +80,9 @@ window.App = (function () {
     var from = booklet && fromId ? CANCERS.filter(function (c) { return c.id === fromId; })[0] : null;
     var facts = (from && art.factsBy && art.factsBy[from.id]) || art.facts;
     curId = id; curBooklet = booklet; articleEl.innerHTML = ""; articleEl.style.setProperty("--c", cn.color);
+    // 癌別專屬版面（js/looks.js、css/looks.css）；小冊與列印版維持原本的星夜書本版面
+    var look = !booklet && !printMode && cn.look && window.Looks && Looks.has(cn.look) ? cn.look : "";
+    if (look) articleEl.dataset.look = look; else delete articleEl.dataset.look;
     W.beginRender(id);
     W.setVideos(art.videos || (art.videosFrom && ARTICLES[art.videosFrom] ? ARTICLES[art.videosFrom].videos : []));
 
@@ -104,24 +107,28 @@ window.App = (function () {
     pv.addEventListener("click", function () { printMode = !printMode; document.body.classList.toggle("printview", printMode); renderArticle(id); window.scrollTo(0, 0); });
     barIn.append(back, ttl, sizes, pv);
     var toc = el("nav", "toc"); toc.setAttribute("aria-label", "章節");
-    art.sections.forEach(function (s, i) {
-      var a = el("a", null, '<span class="toc-n">' + (i + 1) + "</span>" + s.title); a.href = "#" + id; a.dataset.sec = s.id;
-      a.addEventListener("click", function (e) {
-        e.preventDefault(); var t = document.getElementById("s-" + s.id); if (!t) return;
-        // 跳章時先鎖住章節列的自動捲動：部分手機瀏覽器同時跑兩個平滑捲動時，會把頁面的捲動中斷，看起來像「點了沒反應」
-        tocLock = Date.now() + 1600;
-        toc.querySelectorAll("a").forEach(function (x) { x.classList.toggle("on", x === a); });
-        t.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    function goSec(secId) {
+      var t = document.getElementById("s-" + secId); if (!t) return;
+      // 跳章時先鎖住章節列的自動捲動：部分手機瀏覽器同時跑兩個平滑捲動時，會把頁面的捲動中斷，看起來像「點了沒反應」
+      tocLock = Date.now() + 1600;
+      articleEl.querySelectorAll(".toc a, .rail a").forEach(function (x) { x.classList.toggle("on", x.dataset.sec === secId); });
+      t.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    }
+    function tocLinks(box, rail) {
+      art.sections.forEach(function (s, i) {
+        var a = el("a", null, '<span class="toc-n">' + (i + 1) + "</span>" + (rail ? "<span>" + s.title + "</span>" : s.title)); a.href = "#" + id; a.dataset.sec = s.id;
+        a.addEventListener("click", function (e) { e.preventDefault(); goSec(s.id); });
+        box.appendChild(a);
       });
-      toc.appendChild(a);
-    });
+    }
+    tocLinks(toc);
     var prog = el("div", "prog", "<i></i>");
     bar.append(barIn, toc, prog);
 
     // 開場：夜空與翻開的書
     var hero = el("header", "a-hero");
     hero.innerHTML =
-      '<div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>' +
+      '<div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>' + (look ? '<div class="hero-art">' + Looks.hero(look, art.sections) + "</div>" : "") +
       '<div class="a-hero-in">' +
       '<div class="tome" aria-hidden="true"><div class="tome-back"></div><div class="tome-page p1"></div><div class="tome-page p2"></div>' +
       '<div class="tome-cover"><span class="tome-sig">' + F.icon(art.sections[0].emblem || "book", 34) + "</span><b" + (cn.name.length > 5 ? ' class="xlong"' : cn.name.length > 3 ? ' class="long"' : "") + ">" + cn.name + "</b><small>" + (cn.en || "").toUpperCase() + "</small></div></div>" +
@@ -140,8 +147,8 @@ window.App = (function () {
     art.sections.forEach(function (s, i) {
       var sec = el("section", "sec"); sec.id = "s-" + s.id;
       sec.appendChild(el("div", "ch-head",
-        '<span class="emblem" aria-hidden="true">' + F.icon(s.emblem || "book", 30) + '<svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/></svg></span>' +
-        '<div><span class="ch-n">第 ' + (i + 1) + " 章</span><h2>" + s.title + "</h2>" + (s.intro ? '<p class="ch-intro">' + s.intro + "</p>" : "") + "</div>"));
+        '<span class="emblem" aria-hidden="true">' + F.icon(s.emblem || "book", 30) + '<svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30"/></svg></span>' + (look ? Looks.orn(look, i) : "") +
+        '<div class="ch-t"><span class="ch-n">' + (look ? Looks.chLabel(look, i) : "第 " + (i + 1) + " 章") + "</span><h2>" + s.title + "</h2>" + (s.intro ? '<p class="ch-intro">' + s.intro + "</p>" : "") + "</div>"));
       var body = el("div", "ch-body");
       s.blocks.forEach(function (b) {
         // 治療小冊裡標了 only 的區塊（某癌別專屬的影片、規定），從其他癌別點進來時不顯示；直接開啟小冊時全部顯示
@@ -171,6 +178,13 @@ window.App = (function () {
     up.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" }); });
     fab.appendChild(up);
     articleEl.append(bar, hero, wrap, fab);
+    // 寬螢幕的側邊章節導覽（部分版面使用，CSS 決定是否顯示）
+    if (look) { var rail = el("nav", "rail"); rail.setAttribute("aria-label", "章節（側邊）"); tocLinks(rail, true); articleEl.appendChild(rail); }
+    // 淋巴癌開場的章節星圖：點星星跳到該章
+    hero.querySelectorAll(".cn.go").forEach(function (g) {
+      g.addEventListener("click", function () { goSec(g.dataset.sec); });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goSec(g.dataset.sec); } });
+    });
     if (io) io.observe(hero); // 開場夜空捲出畫面後暫停星星動畫
     requestAnimationFrame(function () { articleEl.style.setProperty("--barh", barH() + "px"); });
     watchAnims(); trackChapters();
@@ -186,9 +200,9 @@ window.App = (function () {
       es.forEach(function (e) {
         if (!e.isIntersecting || Date.now() < tocLock) return;
         var id = e.target.id.replace("s-", "");
-        articleEl.querySelectorAll(".toc a").forEach(function (a) {
+        articleEl.querySelectorAll(".toc a, .rail a, .cn.go").forEach(function (a) {
           var on = a.dataset.sec === id; a.classList.toggle("on", on);
-          if (on) a.parentNode.scrollLeft = a.offsetLeft - 16;
+          if (on && a.parentNode.classList && a.parentNode.classList.contains("toc")) a.parentNode.scrollLeft = a.offsetLeft - 16;
         });
       });
     }, { rootMargin: "-30% 0px -60% 0px" });
@@ -200,6 +214,7 @@ window.App = (function () {
     requestAnimationFrame(function () {
       ticking = false;
       var h = document.documentElement.scrollHeight - innerHeight, p = h > 0 ? scrollY / h : 0;
+      var hero0 = articleEl.querySelector(".a-hero"); if (hero0) articleEl.classList.toggle("past-hero", scrollY > hero0.offsetTop + hero0.offsetHeight - 160);
       var bar = articleEl.querySelector(".prog i"); if (bar) bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
       articleEl.classList.toggle("scrolled", scrollY > 900);
     });

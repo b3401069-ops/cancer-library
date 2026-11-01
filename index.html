@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/looks.css">
 <style>
 /* 樣式表載入前的最小底色，避免閃白 */
 :root { --night: #0c1130; --paper: #eef1f7; --ink: #1a2042; }
@@ -25,7 +26,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); }
 </head>
 <body>
 <div id="lobby">
-  <canvas id="scene" aria-label="3D 魔法書館，書本代表各種癌症"></canvas>
+  <canvas id="scene" aria-label="3D 水晶溫室書館，枝頭上發光的書代表各種癌症"></canvas>
   <div class="lobby-head">
     <h1>星夜癌症衛教書館</h1>
     <div class="lobby-logo"><img src="img/logo-light.png" alt="衛生福利部臺北醫院" width="126" height="30"><span>血液腫瘤科</span></div>
@@ -33,7 +34,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); }
   <div id="tip" hidden></div>
   <div id="toast" hidden></div>
   <div class="lobby-foot">
-    <div class="hint" id="hint">點一下漂浮的書，翻開你想了解的癌症</div>
+    <div class="hint" id="hint">點一下枝頭發光的書，翻開你想了解的癌症</div>
     <button class="btn-list" id="openShelf" type="button">直接選癌別</button>
   </div>
   <div id="shelf" hidden>
@@ -77,6 +78,7 @@ body { margin: 0; background: var(--paper); color: var(--ink); }
 <script charset="utf-8" src="js/figures-liver.js"></script>
 <script charset="utf-8" src="js/figures-lymphoma.js"></script>
 <script charset="utf-8" src="js/widgets.js"></script>
+<script charset="utf-8" src="js/looks.js"></script>
 <script charset="utf-8" src="js/lobby.js"></script>
 <script charset="utf-8" src="js/app.js"></script>
 
