@@ -78,6 +78,13 @@ window.Lobby = (function () {
     } else if (kind === "wave") {
       for (var k = -1; k <= 1; k++) { g.moveTo(-s * .6, k * s * .3); for (var x = -s * .6; x <= s * .6; x += 4) g.lineTo(x, k * s * .3 + Math.sin(x / s * 7) * s * .1); }
       g.stroke();
+    } else if (kind === "nodes") {
+      // 淋巴結：以淋巴管相連的一串豆形結節
+      var pts = [[-.42, -.42], [.38, -.38], [0, -.02], [-.36, .4], [.4, .42]];
+      g.moveTo(pts[0][0] * s, pts[0][1] * s); g.quadraticCurveTo(-s * .05, -s * .32, 0, -s * .02); g.quadraticCurveTo(s * .08, -s * .3, pts[1][0] * s, pts[1][1] * s);
+      g.moveTo(0, -s * .02); g.quadraticCurveTo(-s * .05, s * .26, pts[3][0] * s, pts[3][1] * s); g.moveTo(0, -s * .02); g.quadraticCurveTo(s * .08, s * .28, pts[4][0] * s, pts[4][1] * s);
+      g.stroke();
+      pts.forEach(function (p, i) { g.beginPath(); g.ellipse(p[0] * s, p[1] * s, s * (i === 2 ? .17 : .13), s * (i === 2 ? .13 : .1), i * .6, 0, Math.PI * 2); g.fill(); g.stroke(); });
     } else {
       for (var i = 0; i < 16; i++) { var rr = i % 2 ? s * .28 : s * .66, an = i / 16 * Math.PI * 2 - Math.PI / 2; g.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); }
       g.closePath(); g.fill(); g.stroke();
@@ -199,12 +206,15 @@ window.Lobby = (function () {
     var n = books.length;
     if (aspect < .9) {
       var cols = 2, rowsN = Math.ceil(n / cols);
+      // 最下排固定在地板上方（y = -0.95），整組往上排；書的數量是奇數時，最後一本置中
+      var top = (rowsN - 1) * 2.3 - .95, mid = top - (rowsN - 1) / 2 * 2.3;
       books.forEach(function (b, i) {
-        var c = i % cols, r = Math.floor(i / cols);
-        b.position.set((c - (cols - 1) / 2) * 1.9, (rowsN - 1) / 2 * 2.3 - r * 2.3 + 1.1, 0); // 整組往上，最下排不會沉進地板
-        b.rotation.y = (c ? -1 : 1) * .12; b.userData.baseY = b.position.y; b.scale.setScalar(.95);
+        var c = i % cols, r = Math.floor(i / cols), alone = n % 2 && i === n - 1;
+        b.position.set(alone ? 0 : (c - (cols - 1) / 2) * 1.9, top - r * 2.3, 0);
+        b.rotation.y = alone ? 0 : (c ? -1 : 1) * .12; b.userData.baseY = b.position.y; b.scale.setScalar(.95);
       });
-      camera.fov = 52; camBase.set(0, .3, 11.2 + (rowsN - 3) * 2.4 + Math.max(0, .62 - aspect) * 14); lookAt.set(0, .6, 0); camBase.y = 1.1; // 手機直式：越窄越拉遠，書架置中，避開上方標題與底部按鈕
+      // 手機直式：越窄越拉遠，書架置中，避開上方標題與底部按鈕
+      camera.fov = 52; camBase.set(0, mid - .25, 11.2 + (rowsN - 3) * 2.6 + Math.max(0, .62 - aspect) * 14); lookAt.set(0, mid - .75, 0);
     } else {
       var R = 6.2, span = Math.min(1.25, .2 * n);
       books.forEach(function (b, i) {

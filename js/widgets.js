@@ -597,7 +597,22 @@ window.Widgets = (function () {
     var r = function (p) {
       return "<h4>" + p.t + '</h4><span class="goal">' + p.goal + '</span><ol class="flow">' + p.steps.map(function (s) { return "<li>" + s + "</li>"; }).join("") + '</ol><p class="alt">' + p.alt + "</p>" + vrelated(p.eps, pm) + (p.book && !pm ? bookLink(p.book) : "");
     };
-    return pm ? staticList(b.items, r) : picker(b.items, "選擇病情階段", r, { cls: "path-pick sticky-pick", footNav: true });
+    return pm ? staticList(b.items, r) : picker(b.items, b.label || "選擇病情階段", r, { cls: "path-pick sticky-pick", footNav: true });
+  };
+
+  /* ---------- 亞型探索（淋巴癌）：每一型的生長速度、治療方向、相關影片 ----------
+     items：{ t, short, pace: 1 慢｜2 中｜3 快, d, goal, steps[], alt, eps[], book } */
+  W.subtypes = function (b, pm) {
+    var PACE = ["", "慢慢長（惰性）", "中等", "長得快（侵襲性）"];
+    var r = function (s) {
+      var m = '<span class="pace p' + s.pace + '" aria-label="生長速度：' + PACE[s.pace] + '"><i></i><i></i><i></i><em>' + PACE[s.pace] + "</em></span>";
+      return "<h4>" + s.t + "</h4>" + '<div class="sub-meta">' + m + '<span class="goal">' + s.goal + "</span></div><p>" + s.d + '</p><ol class="flow">' +
+        s.steps.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ol>" + (s.alt ? '<p class="alt">' + s.alt + "</p>" : "") + vrelated(s.eps, pm) + (s.book && !pm ? bookLink(s.book) : "");
+    };
+    return pm ? staticList(b.items, r) : picker(b.items, b.label || "選擇淋巴癌的類型", r, {
+      cls: "sub-pick", footNav: true,
+      btn: function (s) { return "<b>" + s.t + "</b><small>" + s.short + "</small>"; }
+    });
   };
 
   /* ---------- 治療機轉 ---------- */

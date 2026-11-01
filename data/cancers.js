@@ -7,5 +7,6 @@ window.CANCERS = [
   { id: "breast",     name: "乳癌",        en: "Breast",      color: "#b8607e", sigil: "ribbon",   ready: false },
   { id: "liver",      name: "肝癌",        en: "Liver",       color: "#a8553a", sigil: "leaf",     ready: true  },
   { id: "headneck",   name: "頭頸癌",      en: "Head & Neck", color: "#2f8a86", sigil: "wave",     ready: false },
-  { id: "prostate",   name: "攝護腺癌",    en: "Prostate",    color: "#6a5cae", sigil: "star",     ready: false }
+  { id: "prostate",   name: "攝護腺癌",    en: "Prostate",    color: "#6a5cae", sigil: "star",     ready: false },
+  { id: "lymphoma",   name: "淋巴癌",      en: "Lymphoma",    color: "#8a9e3a", sigil: "nodes",    ready: true  }
 ];

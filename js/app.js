@@ -46,8 +46,9 @@ window.App = (function () {
         c.innerHTML = '<span class="call-ico" aria-hidden="true">' + (b.level === "danger" ? "!" : "i") + "</span><div><h4>" + b.title + "</h4><div>" + b.text + "</div></div>"; return c;
       case "figure":
         if (printMode) return el("p", "fig-cap-print", "【圖解】" + b.caption);
-        var fx = b.id.indexOf("mech:") === 0 ? F.mech[b.id.slice(5)] : F[b.id];
-        return el("figure", "fig", (fx ? fx() : "") + "<figcaption>" + b.caption + "</figcaption>");
+        // id 可寫成 "mech:chemo"（治療機轉），或 "圖解名:參數"（例如 "lymphTx:cart"）
+        var fp = b.id.split(":"), fx = fp[0] === "mech" ? F.mech[fp[1]] : F[fp[0]];
+        return el("figure", "fig", (fx ? fx(fp[0] === "mech" ? undefined : fp[1]) : "") + "<figcaption>" + b.caption + "</figcaption>");
       case "table":
         var t = "<table><thead><tr>" + b.head.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>" +
           b.rows.map(function (r) { return "<tr>" + r.map(function (d) { return "<td>" + d + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table>";
