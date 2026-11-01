@@ -128,7 +128,7 @@ window.Widgets = (function () {
     var bar = '<div class="cy-bar">' + b.phases.map(function (p) {
       return '<i style="flex:' + (p.to - p.from + 1) + ";background:" + tone(p) + '"></i>';
     }).join("") + '<span class="cy-mark"></span></div>';
-    w.innerHTML = '<div class="cy-head"><span class="cy-day">第 <b>1</b> 天</span><span class="cy-of">/ ' + b.days + " 天一個週期</span></div>" + bar +
+    w.innerHTML = '<div class="cy-head"><span class="cy-day">第 <b>1</b> 天</span><span class="cy-of">/ ' + b.days + " 天一個週期</span><span class='cy-hint'>← 拖動圓圈看每一天 →</span></div>" + bar +
       '<label class="cy-lbl" for="cy-range-' + b.days + '">拖動選擇第幾天</label><input type="range" id="cy-range-' + b.days + '" min="1" max="' + b.days + '" value="1">' +
       '<div class="cy-ticks" aria-hidden="true">' + (b.ticks || [1, 7, 14, 21]).map(function (d) { return "<span>第 " + d + " 天</span>"; }).join("") + '</div><div class="panel cy-panel" aria-live="polite"></div>';
     if (b.title) w.insertAdjacentHTML("afterbegin", '<h4 class="vg-h">' + b.title + "</h4>");
@@ -138,7 +138,14 @@ window.Widgets = (function () {
       day.textContent = d; mk.style.left = ((d - .5) / b.days * 100) + "%"; mk.style.borderColor = tone(p);
       if (p !== last) { pn.classList.remove("swap"); void pn.offsetWidth; pn.classList.add("swap"); pn.style.borderLeftColor = tone(p); pn.innerHTML = r(p); last = p; }
     }
-    rg.addEventListener("input", upd); upd(); return w;
+    rg.addEventListener("input", upd);
+    // 直接拖動彩色條上的大圓圈（或點彩色條任一處）；原生滑桿保留給鍵盤與讀屏使用，畫面上不顯示
+    var track = w.querySelector(".cy-bar"), drag = false;
+    function at(e) { var r = track.getBoundingClientRect(); rg.value = Math.min(b.days, Math.max(1, Math.ceil((e.clientX - r.left) / r.width * b.days))); upd(); }
+    track.addEventListener("pointerdown", function (e) { drag = true; track.classList.add("drag"); try { track.setPointerCapture(e.pointerId); } catch (x) {} at(e); e.preventDefault(); });
+    track.addEventListener("pointermove", function (e) { if (drag) at(e); });
+    ["pointerup", "pointercancel"].forEach(function (t) { track.addEventListener(t, function () { drag = false; track.classList.remove("drag"); }); });
+    upd(); return w;
   };
 
   /* ---------- 手術：切除範圍 ---------- */
@@ -190,15 +197,17 @@ window.Widgets = (function () {
   };
   /* ---------- 全身圖：點選部位看副作用 ---------- */
   W.bodymap = function (b, pm) {
+    // tags：三列的標題，可自訂（例如淋巴系統圖用「這裡是／淋巴癌在這裡時／怎麼檢查」）
+    var tg = b.tags || ["常見表現", "要立即就醫", "怎麼處理"];
     var r = function (x) {
       return '<h4>' + x.t + "</h4>" +
-        '<div class="bm-row"><span class="bm-tag ok">常見表現</span><p>' + x.common + "</p></div>" +
-        '<div class="bm-row"><span class="bm-tag warn">要立即就醫</span><p>' + x.warn + "</p></div>" +
-        (x.tip ? '<div class="bm-row"><span class="bm-tag tip">怎麼處理</span><p>' + x.tip + "</p></div>" : "");
+        '<div class="bm-row"><span class="bm-tag ok">' + tg[0] + "</span><p>" + x.common + "</p></div>" +
+        '<div class="bm-row"><span class="bm-tag warn">' + tg[1] + "</span><p>" + x.warn + "</p></div>" +
+        (x.tip ? '<div class="bm-row"><span class="bm-tag tip">' + tg[2] + "</span><p>" + x.tip + "</p></div>" : "");
     };
     if (pm) return staticList(b.items, r);
     var w = el("div", "bodymap");
-    var fig = el("div", "fig bm-fig" + (b.fig ? " bm-wide" : "")); fig.innerHTML = (b.fig && F[b.fig] ? F[b.fig](b.items) : F.body(b.items, b.plain)) + '<p class="bm-hint">' + (b.fig ? "點身上的標籤，看看每個警訊" : "點身上發光的地方") + "</p>" + (b.fig ? '<span class="bm-tap" aria-hidden="true">👆 點點看</span>' : "");
+    var fig = el("div", "fig bm-fig" + (b.fig ? " bm-wide" : "")); fig.innerHTML = (b.fig && F[b.fig] ? F[b.fig](b.items) : F.body(b.items, b.plain)) + '<p class="bm-hint">' + (b.hint || (b.fig ? "點身上的標籤，看看每個警訊" : "點身上發光的地方")) + "</p>" + (b.fig ? '<span class="bm-tap" aria-hidden="true">👆 點點看</span>' : "");
     var side = el("div", "bm-side");
     var chips = el("div", "bm-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "選擇身體部位");
     var panel = el("div", "panel bm-panel"); panel.setAttribute("aria-live", "polite");
@@ -630,11 +639,16 @@ window.Widgets = (function () {
       return d;
     };
     if (pm) return staticList(b.items, r);
-    return picker(b.items, "選擇治療方式", r, {
+    var pk = picker(b.items, "選擇治療方式", r, {
       cls: "mech-pick sticky-pick", footNav: true,
       btn: function (m) { return "<b>" + m.t + "</b><small>" + m.short + "</small>"; },
       onSelect: function () { if (window.App) window.App.watchAnims(); }
     });
+    // 左側動畫在閱讀右側文字時固定在畫面上：記下上方選單的高度，給 CSS 計算黏住的位置
+    var bar = pk.querySelector(".pick");
+    function setH() { pk.style.setProperty("--pickh", bar.offsetHeight + "px"); }
+    if (window.ResizeObserver) new ResizeObserver(setH).observe(bar); else window.addEventListener("resize", setH);
+    return pk;
   };
 
   /* ---------- 問題清單 ---------- */

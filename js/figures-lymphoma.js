@@ -48,35 +48,64 @@
   function node(k, x, y, r, fill) { return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (r * 1.25).toFixed(1) + '" ry="' + r + '" fill="url(#' + k + "-" + (fill || "ln") + ')" stroke="#e6fff4" stroke-opacity=".7" stroke-width="1"/>'; }
   var VESSELS = "M128 104 C 132 130 140 140 146 150 M172 104 C 168 130 160 140 154 158 M100 146 C 120 150 134 154 146 156 M200 146 C 182 150 166 154 154 160 M146 172 C 148 200 148 220 150 236 M120 318 C 132 290 142 262 146 246 M180 318 C 168 290 158 262 154 246";
 
-  /* ---------- 1. 淋巴系統 ----------
-     全身的淋巴管和淋巴結，像身體的「過濾站」；脾臟、骨髓也屬於免疫系統。頸部一顆淋巴結慢慢變大（不痛的腫塊）。一循環 8 秒。 */
-  F.lymphSystem = function () {
-    var D = 8, k = "lyS", n = "";
-    Object.keys(NODES).forEach(function (g) { NODES[g].forEach(function (p) { n += node(k, p[0], p[1], 5); }); });
-    var flow = "";
-    VESSELS.split(" M").forEach(function (seg, i) {
-      var d = (i ? "M" : "") + seg;
-      for (var j = 0; j < 2; j++) flow += '<circle r="2.2" fill="#c8ffe4"><animateMotion dur="' + (2.6 + i * .2).toFixed(1) + 's" begin="' + (-j * 1.3).toFixed(1) + 's" repeatCount="indefinite" path="' + d + '"/></circle>';
-    });
-    return svg("-70 0 440 490", "淋巴系統示意：全身的淋巴管與淋巴結，以及脾臟、骨髓；淋巴癌常表現為沒有痛感、慢慢變大的淋巴結",
-      "<defs>" + defs(k) + "</defs>" + body(k) +
-      '<g fill="none" stroke="#6fcf9f" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"><path d="' + VESSELS + '"/>' +
-      '<path d="M106 420 C 112 380 116 350 118 322 M194 420 C 188 380 184 350 182 322" stroke-opacity=".3"/></g>' +
-      // 脾臟、骨髓
-      '<path d="M190 196 C 208 192 216 208 210 224 C 202 236 186 232 182 218 C 178 206 182 198 190 196 Z" fill="#b05a8a" opacity=".8"/>' +
-      '<path d="M108 360 L 112 440 M192 360 L 188 440" stroke="#f0cf86" stroke-opacity=".45" stroke-width="7" stroke-linecap="round"/>' +
-      n + flow +
-      // 變大的頸部淋巴結
-      '<g><ellipse cx="124" cy="104" rx="6" ry="5" fill="url(#' + k + '-bad)" stroke="#f3d6ff" stroke-width="1.2">' + anim("rx", "6;6;14;14;6", "0;.3;.6;.95;1", D) + anim("ry", "5;5;11;11;5", "0;.3;.6;.95;1", D) + "</ellipse></g>" +
-      '<g opacity="0">' + show(4.6, D) + callout(116, 104, -10, 70, "不痛、慢慢變大的腫塊", { anchor: "start", fill: "#d9b8ff", size: 11.5 }) + "</g>" +
-      callout(176, 98, 252, 70, "頸部淋巴結", { anchor: "start", fill: "#a6f0c8" }) +
-      callout(204, 140, 252, 128, "腋下", { anchor: "start", fill: "#a6f0c8" }) +
-      callout(150, 160, 252, 172, "縱膈腔（胸腔中間）", { anchor: "start", fill: "#a6f0c8", line: "#a6f0c8" }) +
-      callout(206, 212, 252, 214, "脾臟", { anchor: "start", fill: "#e8b0d0" }) +
-      callout(150, 240, 252, 262, "腹腔淋巴結", { anchor: "start", fill: "#a6f0c8" }) +
-      callout(184, 316, 252, 318, "鼠蹊部", { anchor: "start", fill: "#a6f0c8" }) +
-      callout(110, 400, 20, 420, "骨髓：製造血球", { anchor: "end", fill: "#f0cf86", line: "#f0cf86" }) +
-      txt(150, 486, "淋巴結像身體的「過濾站」，淋巴球在這裡巡邏、對抗病菌", { fill: "#d9dcf5", size: 12 }), "lymph-fig");
+  /* ---------- 1. 淋巴系統（可點選的全身圖） ----------
+     hot：bodymap 傳入的熱點（id、x、y、short、side）。淋巴液從手腳、腸道沿著淋巴管往上流，
+     經過一站站淋巴結，最後由胸管在左側鎖骨下方匯入靜脈。右頸有一顆慢慢變大、不痛的淋巴結。 */
+  F.lymphSystem = function (hot) {
+    var D = 8, k = "lyS";
+    // 淋巴管：每條都從末梢畫向中心，流動方向才會正確
+    var PATHS = [
+      "M52 288 C 60 246 70 196 94 146 C 108 128 122 118 136 112",          // 右手 → 腋下 → 右鎖骨下
+      "M248 288 C 240 246 230 196 206 146 C 192 128 178 118 166 110",      // 左手 → 腋下 → 左鎖骨下
+      "M108 466 C 110 420 114 362 118 322 C 128 292 140 266 151 240",      // 右腳 → 鼠蹊 → 腹腔
+      "M192 466 C 190 420 186 362 182 322 C 172 292 160 266 151 240",      // 左腳 → 鼠蹊 → 腹腔
+      "M151 240 C 152 206 154 170 155 140 C 156 122 160 112 166 110",      // 胸管：乳糜池 → 左鎖骨下
+      "M133 68 C 138 80 141 96 136 112",                                     // 右頸
+      "M167 68 C 162 80 159 96 166 110",                                     // 左頸
+      "M128 252 C 136 248 144 244 151 240", "M174 252 C 166 248 158 244 151 240" // 腸道的淋巴
+    ];
+    var NODES2 = [[136, 80], [139, 90], [140, 100], [132, 110], [164, 80], [161, 90], [168, 110],
+      [94, 144], [100, 154], [90, 154], [206, 144], [200, 154], [210, 154], [66, 222], [234, 222],
+      [148, 126], [156, 136], [150, 148], [155, 162],
+      [146, 248], [157, 258], [148, 270], [134, 284], [167, 284],
+      [118, 320], [125, 329], [111, 329], [182, 320], [175, 329], [189, 329]];
+    var base = PATHS.map(function (d) { return '<path d="' + d + '"/>'; }).join("");
+    var flow = PATHS.map(function (d, i) {
+      return '<path d="' + d + '"><animate attributeName="stroke-dashoffset" values="0;-24" dur="' + (1.1 + (i % 3) * .15).toFixed(2) + 's" repeatCount="indefinite"/></path>';
+    }).join("");
+    var nodes = NODES2.map(function (p, i) {
+      var r = i > 12 && i < 15 ? 2.8 : 3.8;
+      return '<ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="' + (r * 1.3).toFixed(1) + '" ry="' + r + '" fill="url(#' + k + '-ln)" stroke="#e6fff4" stroke-opacity=".6" stroke-width=".8" transform="rotate(' + ((i * 37) % 50 - 25) + " " + p[0] + " " + p[1] + ')"/>';
+    }).join("");
+    var body = '<path d="' + BODY + '" fill="url(#' + k + '-bd)" stroke="#8a94e0" stroke-width="1.4"/>' +
+      '<path d="' + BODY + '" fill="none" stroke="#c9d0ff" stroke-opacity=".12" stroke-width="10" clip-path="url(#' + k + '-clip)"/>';
+    var bones = '<g fill="none" stroke="#f0cf86" stroke-opacity=".28" stroke-linecap="round">' +
+      '<path d="M150 118 V 176" stroke-width="5"/>' +                                             // 胸骨
+      '<path d="M112 350 L 114 440 M188 350 L 186 440" stroke-width="7"/></g>';                   // 大腿骨
+    // 胃與腸道（淡淡的輪廓），讓「胃腸道」熱點有位置感
+    var gut = '<g fill="none" stroke="#e9a8b8" stroke-opacity=".22" stroke-width="2.4" stroke-linecap="round">' +
+      '<path d="M166 182 C 182 180 188 196 182 210 C 174 224 154 222 146 214"/>' +
+      '<path d="M120 236 C 120 224 136 222 140 232 C 144 242 128 248 124 258 C 120 270 136 276 142 268 M160 232 C 164 222 180 224 180 236 C 180 248 166 250 166 262 C 166 272 180 274 182 264"/></g>';
+    var spleen = '<path d="M186 192 C 204 188 212 204 206 220 C 198 232 182 228 178 214 C 174 202 178 194 186 192 Z" fill="#b05a8a" opacity=".75"/>';
+    var lump = '<ellipse cx="161" cy="94" rx="5" ry="4" fill="url(#' + k + '-bad)" stroke="#f3d6ff" stroke-width="1.1">' +
+      anim("rx", "4;4;10;10;4", "0;.25;.6;.95;1", D) + anim("ry", "3.5;3.5;8;8;3.5", "0;.25;.6;.95;1", D) + "</ellipse>" +
+      '<g opacity="0">' + show(4.6, D) + callout(169, 92, 226, 96, "不痛、慢慢變大", { anchor: "start", fill: "#d9b8ff", size: 11 }) + "</g>";
+    var spots = (hot || []).map(function (h, i) {
+      var left = h.side === "left", lx = left ? h.x - 16 : h.x + 16;
+      return '<g class="bm-spot" data-id="' + h.id + '" style="cursor:pointer">' +
+        '<circle class="bm-pulse" cx="' + h.x + '" cy="' + h.y + '" r="10" style="animation-delay:' + (i * .2) + 's"/>' +
+        '<circle class="bm-dot" cx="' + h.x + '" cy="' + h.y + '" r="7"/>' + txt(h.x, h.y + 4, "+", { fill: "#141a46", size: 12, weight: 700 }) +
+        '<path d="M' + (left ? h.x - 8 : h.x + 8) + " " + h.y + " H " + lx + '" stroke="#f0cf86" stroke-width="1.2"/>' +
+        '<g class="bm-lbl">' + tag(lx, h.y + 5, h.short || h.t, { anchor: left ? "end" : "start", size: 13, fill: "#f0cf86", stroke: "#f0cf86" }) + "</g>" +
+        '<rect x="' + (left ? lx - 96 : h.x - 14) + '" y="' + (h.y - 15) + '" width="' + (Math.abs(lx - h.x) + 110) + '" height="30" fill="transparent"/></g>';
+    }).join("");
+    return svg("-62 0 424 486", "淋巴系統全身圖：淋巴液從手腳與腸道沿著淋巴管往上流，經過頸部、腋下、縱膈腔、腹腔、鼠蹊部的淋巴結，最後在左側鎖骨下方匯入血液；脾臟、骨髓也是免疫系統的一部分。點選標籤查看各部位的說明",
+      "<defs>" + defs(k) + '<clipPath id="' + k + '-clip"><path d="' + BODY + '"/></clipPath>' +
+      '<filter id="' + k + '-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>' +
+      body + bones + gut + spleen +
+      '<g fill="none" stroke="#6fcf9f" stroke-linecap="round" stroke-linejoin="round"><g stroke-width="5" stroke-opacity=".18" filter="url(#' + k + '-glow)">' + base + '</g><g stroke-width="1.8" stroke-opacity=".6">' + base + "</g>" +
+      '<g stroke="#d6ffec" stroke-width="2.2" stroke-dasharray="2 10" stroke-opacity=".95">' + flow + "</g></g>" +
+      '<circle cx="166" cy="110" r="3" fill="#7ec8f5"/>' + nodes + lump + spots, "body-fig cirr-fig lymph-fig");
   };
 
   /* ---------- 2. 淋巴結裡發生了什麼 ----------

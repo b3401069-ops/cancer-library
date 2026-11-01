@@ -483,7 +483,8 @@ dl.fx dd { color: var(--muted); font-size: .95em; }
 .book.booklet em { font-size: 12px; letter-spacing: 0; line-height: 1.4; }
 
 /* 化療週期 */
-.cycle { display: flex; flex-direction: column; gap: 8px; }
+.cycle { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.cy-hint { margin-left: auto; font-size: 12px; color: var(--muted); }
 .cy-head { display: flex; align-items: baseline; gap: 8px; }
 .cy-day { font-family: var(--f-display); font-size: 1.3em; }
 .cy-day b { font-size: 1.6em; color: var(--gold); font-variant-numeric: tabular-nums; }
@@ -493,6 +494,13 @@ dl.fx dd { color: var(--muted); font-size: .95em; }
 .cy-bar i:first-child { border-radius: 8px 0 0 8px; } .cy-bar i:nth-last-child(2) { border-radius: 0 8px 8px 0; }
 .cy-mark { position: absolute; top: -6px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--panel); border: 4px solid var(--gold); box-shadow: 0 2px 8px rgba(0,0,0,.25); transition: left .25s ease; }
 .cy-lbl { position: absolute; left: -9999px; }
+.cycle input[type=range] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cy-bar { cursor: grab; touch-action: pan-y; margin: 6px 0; }
+.cy-bar::before { content: ""; position: absolute; inset: -14px 0; }
+.cy-bar.drag { cursor: grabbing; }
+.cy-bar.drag .cy-mark { transition: none; transform: scale(1.15); }
+.cy-mark { pointer-events: none; }
+.cycle:focus-within .cy-mark { box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 45%, transparent), 0 2px 8px rgba(0,0,0,.25); }
 #cy-range { width: 100%; accent-color: var(--accent); margin: 6px 0 0; }
 .cy-ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
 .cy-panel { border-left: 5px solid var(--gold); }
@@ -901,3 +909,13 @@ body.printview .vc-art { width: 64px; height: 64px; }
 .lyst[data-stage="4"] .g1 .lnod, .lyst[data-stage="4"] .g2 .lnod, .lyst[data-stage="4"] .g3 .lnod { fill: #b07ae0; stroke: #f3d6ff; stroke-opacity: 1; animation: nodeglow 1.6s ease-in-out infinite alternate; }
 .lyst[data-stage="4"] .lorg { opacity: 1; }
 @media (max-width: 720px) { .sub-pick .pick { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; } .sub-pick .pick button { padding: 8px 10px; font-size: .86em; } }
+
+/* 治療機轉：閱讀右側文字時，左側動畫固定在畫面上（桌機、畫面夠高時） */
+@media (min-width: 721px) and (min-height: 600px) {
+  .mech-pick .mech > .mech-fig { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--barh, 100px) + var(--pickh, 0px) + 14px); }
+}
+@media (max-width: 720px) {
+  .bodymap:has(.bm-wide) { grid-template-columns: 1fr; }
+  .bm-row { grid-template-columns: 1fr; gap: 4px; }
+  .bm-tag { justify-self: start; }
+}
