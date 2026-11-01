@@ -919,3 +919,15 @@ body.printview .vc-art { width: 64px; height: 64px; }
   .bm-row { grid-template-columns: 1fr; gap: 4px; }
   .bm-tag { justify-self: start; }
 }
+
+/* 手機：項目多的選單（治療機轉、淋巴癌亞型）改成一排左右滑動，不再佔滿整個畫面 */
+@media (max-width: 720px) {
+  .mech-pick .pick, .sub-pick .pick { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding: 2px 2px 8px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 82%, transparent); mask-image: linear-gradient(to right, #000 82%, transparent); }
+  .mech-pick .pick::-webkit-scrollbar, .sub-pick .pick::-webkit-scrollbar { display: none; }
+  .mech-pick .pick button, .sub-pick .pick button { flex: 0 0 auto; width: 9.5em; padding: 8px 10px; font-size: .86em; scroll-snap-align: start; }
+  .mech-pick .pick b { font-size: 1.05em; }
+  .mech-pick .pick:has(button:last-child[aria-selected="true"]), .sub-pick .pick:has(button:last-child[aria-selected="true"]) { -webkit-mask-image: none; mask-image: none; }
+  .mech-pick::before, .sub-pick::before { content: "← 左右滑動，選擇項目 →"; display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+}
+
+.bm-tap { pointer-events: auto; cursor: pointer; }

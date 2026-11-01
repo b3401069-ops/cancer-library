@@ -21,6 +21,8 @@ window.Widgets = (function () {
     function select(i, user) {
       STATE[key] = i;
       btns.forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
+      // 手機上選單改成可左右滑動的一排時，把選到的按鈕帶進畫面
+      if (bar.scrollWidth > bar.clientWidth + 4) bar.scrollLeft = Math.max(0, btns[i].offsetLeft - bar.offsetLeft - 24);
       panel.classList.remove("swap"); void panel.offsetWidth; panel.classList.add("swap");
       panel.innerHTML = ""; var c = render(items[i], i, panel); if (typeof c === "string") panel.innerHTML = c; else if (c) panel.appendChild(c);
       if (opts.footNav && items.length > 1) panel.appendChild(footNav(i));
@@ -207,7 +209,7 @@ window.Widgets = (function () {
     };
     if (pm) return staticList(b.items, r);
     var w = el("div", "bodymap");
-    var fig = el("div", "fig bm-fig" + (b.fig ? " bm-wide" : "")); fig.innerHTML = (b.fig && F[b.fig] ? F[b.fig](b.items) : F.body(b.items, b.plain)) + '<p class="bm-hint">' + (b.hint || (b.fig ? "點身上的標籤，看看每個警訊" : "點身上發光的地方")) + "</p>" + (b.fig ? '<span class="bm-tap" aria-hidden="true">👆 點點看</span>' : "");
+    var fig = el("div", "fig bm-fig" + (b.fig ? " bm-wide" : "")); fig.innerHTML = (b.fig && F[b.fig] ? F[b.fig](b.items) : F.body(b.items, b.plain)) + '<p class="bm-hint">' + (b.hint || (b.fig ? "點身上的標籤，看看每個警訊" : "點身上發光的地方")) + "</p>" + (b.fig && b.tap !== false ? '<span class="bm-tap" aria-hidden="true">👆 點點看</span>' : "");
     var side = el("div", "bm-side");
     var chips = el("div", "bm-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "選擇身體部位");
     var panel = el("div", "panel bm-panel"); panel.setAttribute("aria-live", "polite");
@@ -218,6 +220,8 @@ window.Widgets = (function () {
     spots.forEach(function (sp) {
       sp.addEventListener("click", function () { b.items.forEach(function (x, i) { if (x.id === sp.dataset.id) pick(i, true); }); });
     });
+    // 「點點看」提示本身也可以點：點了就打開第一個部位
+    var tap0 = fig.querySelector(".bm-tap"); if (tap0) tap0.addEventListener("click", function () { pick(0, true); });
     function pick(i, user) {
       if (user) { var tp = fig.querySelector(".bm-tap"); if (tp) tp.remove(); }
       btns.forEach(function (c, j) { c.setAttribute("aria-pressed", j === i ? "true" : "false"); });

@@ -106,7 +106,13 @@ window.App = (function () {
     var toc = el("nav", "toc"); toc.setAttribute("aria-label", "章節");
     art.sections.forEach(function (s, i) {
       var a = el("a", null, '<span class="toc-n">' + (i + 1) + "</span>" + s.title); a.href = "#" + id; a.dataset.sec = s.id;
-      a.addEventListener("click", function (e) { e.preventDefault(); var t = document.getElementById("s-" + s.id); if (t) t.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" }); });
+      a.addEventListener("click", function (e) {
+        e.preventDefault(); var t = document.getElementById("s-" + s.id); if (!t) return;
+        // 跳章時先鎖住章節列的自動捲動：部分手機瀏覽器同時跑兩個平滑捲動時，會把頁面的捲動中斷，看起來像「點了沒反應」
+        tocLock = Date.now() + 1600;
+        toc.querySelectorAll("a").forEach(function (x) { x.classList.toggle("on", x === a); });
+        t.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+      });
       toc.appendChild(a);
     });
     var prog = el("div", "prog", "<i></i>");
@@ -171,17 +177,18 @@ window.App = (function () {
   }
 
   /* ---------- 閱讀進度與目前章節 ---------- */
-  var secIO = null;
+  var secIO = null, tocLock = 0;
+  window.addEventListener("scrollend", function () { if (tocLock) { tocLock = 0; var on = articleEl.querySelector(".toc a.on"); if (on) on.parentNode.scrollLeft = on.offsetLeft - 16; } });
   function trackChapters() {
     if (secIO) secIO.disconnect();
     if (!("IntersectionObserver" in window)) return;
     secIO = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (!e.isIntersecting) return;
+        if (!e.isIntersecting || Date.now() < tocLock) return;
         var id = e.target.id.replace("s-", "");
         articleEl.querySelectorAll(".toc a").forEach(function (a) {
           var on = a.dataset.sec === id; a.classList.toggle("on", on);
-          if (on && a.parentNode.scrollTo) a.parentNode.scrollTo({ left: a.offsetLeft - 16, behavior: reduced ? "auto" : "smooth" });
+          if (on) a.parentNode.scrollLeft = a.offsetLeft - 16;
         });
       });
     }, { rootMargin: "-30% 0px -60% 0px" });

@@ -250,4 +250,38 @@
       phase(230, 70, "1. 先從血液中收集自己的造血幹細胞", 0, .24, D) + phase(230, 70, "2. 冷凍保存", .24, .46, D) + phase(230, 70, "3. 接受高劑量化療，清除淋巴癌", .46, .66, D, { fill: "#ffb199" }) +
       phase(230, 70, "4. 輸回幹細胞，約 2 週後血球慢慢回升", .66, .97, D, { fill: "#7fdcaa" }), "lytx-fig");
   };
+
+  /* ---------- 5. 正子攝影 ----------
+     打入類似葡萄糖的顯影藥，活躍的細胞吃得多就會亮；腦、心臟、腎臟、膀胱本來就會亮。治療後淋巴癌不再亮起，代表完全緩解。一循環 12 秒。 */
+  F.petScan = function () {
+    var D = 12, k = "lyP";
+    function hot(x, y, rx, ry, id) { return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + ry + '" fill="url(#' + k + "-" + (id || "h") + ')"/>'; }
+    var dots = "";
+    for (var i = 0; i < 26; i++) {
+      var x = 100 + (i * 37) % 100, y = 110 + (i * 53) % 230, t = (i % 9) * .25;
+      dots += '<circle cx="' + x + '" cy="' + y + '" r="2" fill="#ffe08a" opacity="0">' + anim("opacity", "0;0;.9;0;0", "0;" + (t / D).toFixed(3) + ";" + ((t + .6) / D).toFixed(3) + ";" + ((t + 1.4) / D).toFixed(3) + ";1", D) + "</circle>";
+    }
+    var normal = '<g opacity="0">' + anim("opacity", "0;0;1;1;0", "0;.22;.4;.97;1", D) +
+      hot(150, 38, 24, 19) + hot(156, 150, 13, 11) + hot(132, 224, 7, 11, "s") + hot(168, 224, 7, 11, "s") + hot(150, 302, 11, 9) + "</g>";
+    var lym = '<g opacity="0">' + anim("opacity", "0;0;1;1;0;0", "0;.25;.42;.72;.8;1", D) +
+      hot(139, 92, 11, 10, "l") + hot(141, 106, 10, 9, "l") + hot(150, 132, 13, 11, "l") + hot(147, 168, 11, 10, "l") + hot(94, 150, 10, 9, "l") + hot(150, 252, 14, 11, "l") + hot(163, 268, 11, 10, "l") + "</g>";
+    var lbl = '<g opacity="0">' + anim("opacity", "0;0;1;1;0", "0;.45;.5;.97;1", D) +
+      callout(170, 34, 228, 30, "腦（本來就會亮）", { anchor: "start", fill: "#ffe08a", size: 11 }) +
+      callout(168, 152, 228, 150, "心臟（本來就會亮）", { anchor: "start", fill: "#ffe08a", size: 11 }) +
+      callout(174, 226, 228, 226, "腎臟（藥物排出）", { anchor: "start", fill: "#ffe08a", size: 11 }) +
+      callout(160, 304, 228, 304, "膀胱（藥物排出）", { anchor: "start", fill: "#ffe08a", size: 11 }) + "</g>" +
+      '<g opacity="0">' + anim("opacity", "0;0;1;1;0;0", "0;.45;.5;.72;.78;1", D) +
+      callout(134, 96, 30, 82, "淋巴癌", { anchor: "end", fill: "#ffb199", line: "#ffb199", size: 11.5 }) +
+      callout(142, 254, 30, 254, "淋巴癌", { anchor: "end", fill: "#ffb199", line: "#ffb199", size: 11.5 }) + "</g>" +
+      '<g opacity="0">' + anim("opacity", "0;0;1;1;0", "0;.8;.84;.97;1", D) + tag(150, 404, "淋巴癌不再亮起＝完全緩解", { size: 12, fill: "#7fdcaa" }) + "</g>";
+    return svg("-40 0 380 486", "正子攝影示意：打入類似葡萄糖的顯影藥後，活躍的細胞吸收得多會亮起來；腦、心臟、腎臟、膀胱本來就會亮，淋巴癌的地方特別亮；治療有效時，淋巴癌的地方不再亮起",
+      "<defs>" + '<radialGradient id="' + k + '-h"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#f0b84a" stop-opacity=".8"/><stop offset="1" stop-color="#f0b84a" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="' + k + '-s"><stop offset="0" stop-color="#ffe9b0"/><stop offset="1" stop-color="#f0b84a" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="' + k + '-l"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#ff9a5a"/><stop offset="1" stop-color="#ff5a3a" stop-opacity="0"/></radialGradient></defs>' +
+      '<path d="' + BODY + '" fill="#1d2350" stroke="#6a74b8" stroke-width="1.4"/>' + dots + normal + lym + lbl +
+      phase(150, 470, "1. 打入類似葡萄糖的顯影藥，隨血液流到全身", 0, .25, D) +
+      phase(150, 470, "2. 休息約 1 小時：越活躍的細胞，吃得越多、越亮", .25, .45, D) +
+      phase(150, 470, "3. 淋巴癌特別亮；腦、心臟、腎臟、膀胱本來就會亮", .45, .74, D, { fill: "#ffb199" }) +
+      phase(150, 470, "4. 治療後再照，比較亮的地方有沒有消失", .74, .97, D, { fill: "#7fdcaa" }), "pet-fig");
+  };
 })(window.Figures);
